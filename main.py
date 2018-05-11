@@ -14,6 +14,10 @@ from keras.regularizers import l2, l1
 from keras.models import load_model
 from keras.callbacks import Callback
 
+from keras import backend as K
+
+def root_mean_squared_error(y_true, y_pred):
+        return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1)) 
 
 class PlotCallback(Callback):
     
@@ -27,8 +31,9 @@ class PlotCallback(Callback):
  
     def on_train_end(self, logs={}):
         results = zip(self.ls_history, self.as_history)
+        print("Loss \t Accuracy")
         for l, a in results:
-            print("{}, \t {}".format(l, a))
+            print("{} \t {}".format(l, a))
 # 
 #    def on_epoch_begin(self, logs={}):
 #        return
@@ -75,60 +80,61 @@ feature_names = ['PFTIds',
          'Rpot',
          'oriLongTermMeteoData.Rg_all_MSC.Min']
 
-target_names = ['',
-                '',
-                '',
-                '',
-                '',
-                '']
+target_names = ['GPP',
+                'NEE',
+                'TER',
+                'LE',
+                'Rn',
+                'H']
 
 # normalization of features
 
+a, b = 0, 1
 for i in range(len(feature_names)):
     xmin = np.min(xs[:,i])
     xmax = np.max(xs[:,i])
-    xs[:,i] = 2*(xs[:,i] - xmin)/(xmax-xmin)-1
+    xs[:,i] = (b-a)*(xs[:,i] - xmin)/(xmax-xmin)+a
     
 for i in range(len(target_names)):
     ymin = np.min(ys[:,i])
     ymax = np.max(ys[:,i])
-    ys[:,i] = 2*(ys[:,i] - ymin)/(ymax-ymin)-1
+    ys[:,i] = (b-a)*(ys[:,i] - ymin)/(ymax-ymin)+a
 
 #features = range(0, 16)
 features = (3, 1, 4, 2, 5, 6, 7, 8, 0)
-targets = (0,)
+targets = (3,)
 
 model = Sequential()
 
 input_dim = len(features)
-hidden_layers = (15, 12, 9)
+hidden_layers = (50, 30, 20, 10)
 output_dim = len(targets)
 
-rel = lambda: l2(0.02)
+rel = lambda: l2(0.2)
 
 model.add(Dense(hidden_layers[0], 
                 input_dim = input_dim, 
                 kernel_initializer="normal", 
-                activation="tanh", 
+                activation="sigmoid", 
                 kernel_regularizer=rel()))
 for neurons in hidden_layers[1:]:
     model.add(Dense(neurons, 
                     kernel_initializer="normal", 
-                    activation="tanh", 
+                    activation="sigmoid", 
                     kernel_regularizer=rel()))
 model.add(Dense(output_dim, 
                 kernel_initializer="normal", 
-                activation="tanh",
+                activation="sigmoid",
                 kernel_regularizer=rel()))
                         
-model.compile(loss="mean_squared_error", 
+model.compile(loss='mean_squared_error', 
               optimizer="adam", metrics=['accuracy'])
 
 print("Training with ", hidden_layers)
 
 model.fit(xs[:,features], ys[:,targets], 
-          batch_size=15,
-          epochs = 50,
+          batch_size=5,
+          epochs = 5,
           verbose=1,
           callbacks=[PlotCallback()])
 
