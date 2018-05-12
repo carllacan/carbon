@@ -3,41 +3,21 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-import random
 
 from keras.models import Sequential
 from keras.layers import Dense
-#from keras.layers import Conv2D
-#from keras.layers import Flatten
-#from keras.layers import MaxPooling2D
 from keras.regularizers import l2, l1
-from keras.models import load_model
+#from keras.models import load_model
 from keras.callbacks import Callback
 
 from keras import backend as K
 
-def root_mean_squared_error(y_true, y_pred):
-        return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1)) 
-
 class PlotCallback(Callback):
-    
-#    def __init__(self):
-#        Callback.__init()
-#        self.acc_history = []
-        
+    # Plots accuracy and loss after each epoch
     def on_train_begin(self, logs={}):
         self.ls_history = []
         self.as_history = []
- 
-    def on_train_end(self, logs={}):
-        results = zip(self.ls_history, self.as_history)
-        print("Loss \t Accuracy")
-        for l, a in results:
-            print("{} \t {}".format(l, a))
-# 
-#    def on_epoch_begin(self, logs={}):
-#        return
- 
+
     def on_epoch_end(self, epoch, logs={}):
         loss = logs.get('loss')
         acc = logs.get('acc')
@@ -50,15 +30,17 @@ class PlotCallback(Callback):
         plt.plot(es, ls)
         plt.plot(es, acs)
         plt.show()
-        return
- 
-#    def on_batch_begin(self, batch, logs={}):
-#        return
-# 
-#    def on_batch_end(self, batch, logs={}):
-#        self.losses.append(logs.get('loss'))
-#        return
-    
+     
+def mean_error(y_true, y_pred):
+    return K.mean(y_pred - y_true)
+   
+def root_mean_squared_error(y_true, y_pred):
+    # keras.backend has a square function, but with it the the calculated
+    # error is less accurate than with python's ** operator. Go figure.
+    return K.sqrt(K.mean((y_pred - y_true)**2))
+
+
+
 datafolder = 'data'
 xs = np.genfromtxt('{}/dataX.csv'.format(datafolder), delimiter=',')
 ys = np.genfromtxt('{}/dataY.csv'.format(datafolder), delimiter=',')
@@ -87,9 +69,25 @@ target_names = ['GPP',
                 'Rn',
                 'H']
 
+metrics=[mean_error, 
+         root_mean_squared_error, 
+#         'mean_squared_error', 
+         'mean_absolute_error']
+metric_abbs = {'mean_squared_error':'MSE',
+               'mean_absolute_error':'MAE',
+               'mean_absolute_percentage_error':'MAPE',
+               mean_error:'ME',
+               root_mean_squared_error:'RMSE'}
+metric_keys = {'mean_squared_error':'val_mean_squared_error',
+               'mean_absolute_error':'val_mean_absolute_error',
+               'mean_absolute_percentage_error':'val_mean_absolute_percentage_error',
+               mean_error:'val_mean_error',
+               root_mean_squared_error:'val_root_mean_squared_error'}
+
 # normalization of features
 
-a, b = 0, 1
+val_range = 0, 1
+a, b = val_range
 for i in range(len(feature_names)):
     xmin = np.min(xs[:,i])
     xmax = np.max(xs[:,i])
@@ -102,7 +100,7 @@ for i in range(len(target_names)):
 
 #features = range(0, 16)
 features = (3, 1, 4, 2, 5, 6, 7, 8, 0)
-targets = (3,)
+targets = (0,)
 
 model = Sequential()
 
@@ -115,28 +113,52 @@ rel = lambda: l2(0.2)
 model.add(Dense(hidden_layers[0], 
                 input_dim = input_dim, 
                 kernel_initializer="normal", 
-                activation="sigmoid", 
+                activation='sigmoid', 
                 kernel_regularizer=rel()))
 for neurons in hidden_layers[1:]:
     model.add(Dense(neurons, 
                     kernel_initializer="normal", 
-                    activation="sigmoid", 
+                    activation='sigmoid', 
                     kernel_regularizer=rel()))
 model.add(Dense(output_dim, 
                 kernel_initializer="normal", 
-                activation="sigmoid",
+                activation='sigmoid',
                 kernel_regularizer=rel()))
                         
 model.compile(loss='mean_squared_error', 
-              optimizer="adam", metrics=['accuracy'])
+              optimizer="adam", 
+              metrics=metrics)
 
 print("Training with ", hidden_layers)
 
-model.fit(xs[:,features], ys[:,targets], 
-          batch_size=5,
-          epochs = 5,
-          verbose=1,
-          callbacks=[PlotCallback()])
+batch_size = 50
+epochs = 5
+validation_split = 0.2
+fit_history = model.fit(xs[:,features], ys[:,targets], 
+                        batch_size = batch_size,
+                        epochs = epochs,
+                        verbose=1,
+                        shuffle=True,
+                        validation_split=validation_split,
+                        callbacks=[PlotCallback()]
+                        )
+print('')
+header = ''
+
+for m in metrics:
+    abb = metric_abbs[m]
+    header += abb + '\t\t'
+print(header)
+    
+for e in range(epochs):
+    l = ''
+    for m in metrics:
+        v = fit_history.history[metric_keys[m]][e]
+        l +='{:f} \t'.format(v)
+    print(l)
+            
+
+
 
           
           
