@@ -102,28 +102,30 @@ for i in range(len(target_names)):
 features = (3, 1, 4, 2, 5, 6, 7, 8, 0)
 targets = (0,)
 
-model = Sequential()
 
 input_dim = len(features)
 hidden_layers = (50, 30, 20, 10)
 output_dim = len(targets)
 
-rel = lambda: l2(0.2)
+reg_type = "l2"
+reg_v = 0.15
+reg = {"l1":l1,"l2":l2}[reg_type](reg_v)
 
+model = Sequential()
 model.add(Dense(hidden_layers[0], 
                 input_dim = input_dim, 
                 kernel_initializer="normal", 
                 activation='sigmoid', 
-                kernel_regularizer=rel()))
+                kernel_regularizer=reg))
 for neurons in hidden_layers[1:]:
     model.add(Dense(neurons, 
                     kernel_initializer="normal", 
                     activation='sigmoid', 
-                    kernel_regularizer=rel()))
+                    kernel_regularizer=reg))
 model.add(Dense(output_dim, 
                 kernel_initializer="normal", 
                 activation='sigmoid',
-                kernel_regularizer=rel()))
+                kernel_regularizer=reg))
                         
 model.compile(loss='mean_squared_error', 
               optimizer="adam", 
@@ -140,7 +142,7 @@ fit_history = model.fit(xs[:,features], ys[:,targets],
                         verbose=1,
                         shuffle=True,
                         validation_split=validation_split,
-                        callbacks=[PlotCallback()]
+#                        callbacks=[PlotCallback()]
                         )
 print('')
 header = ''
