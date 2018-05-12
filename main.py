@@ -7,9 +7,7 @@ from matplotlib import pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.regularizers import l2, l1
-#from keras.models import load_model
 from keras.callbacks import Callback
-
 from keras import backend as K
 
 class PlotCallback(Callback):
@@ -31,6 +29,8 @@ class PlotCallback(Callback):
         plt.plot(es, acs)
         plt.show()
      
+# Create some custom metrics
+        
 def mean_error(y_true, y_pred):
     return K.mean(y_pred - y_true)
    
@@ -39,8 +39,8 @@ def root_mean_squared_error(y_true, y_pred):
     # error is less accurate than with python's ** operator. Go figure.
     return K.sqrt(K.mean((y_pred - y_true)**2))
 
-
-
+# Load data
+    
 datafolder = 'data'
 xs = np.genfromtxt('{}/dataX.csv'.format(datafolder), delimiter=',')
 ys = np.genfromtxt('{}/dataY.csv'.format(datafolder), delimiter=',')
@@ -69,10 +69,13 @@ target_names = ['GPP',
                 'Rn',
                 'H']
 
+# Decide the metrics
+
 metrics=[mean_error, 
          root_mean_squared_error, 
 #         'mean_squared_error', 
          'mean_absolute_error']
+
 metric_abbs = {'mean_squared_error':'MSE',
                'mean_absolute_error':'MAE',
                'mean_absolute_percentage_error':'MAPE',
@@ -83,11 +86,26 @@ metric_keys = {'mean_squared_error':'val_mean_squared_error',
                'mean_absolute_percentage_error':'val_mean_absolute_percentage_error',
                mean_error:'val_mean_error',
                root_mean_squared_error:'val_root_mean_squared_error'}
+# Choose params
 
-# normalization of features
+params = {'neurons':'sigmoid',
+          'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
+          'targets' : (3,),
+          'hidden_layers' : (50, 30, 20, 10),
+          'reg_type' : 'l2',
+          'reg_v' : 0.15,
+          'batch_size' : 50,
+          'epochs' : 1,
+          'validation_split' : 0.2}
 
-val_range = 0, 1
-a, b = val_range
+# normalization of training data
+if params['neurons'] == 'sigmoid':
+    a, b = 0, 1
+elif params['neurons'] == 'tanh':
+    a, b = -1, 1
+elif params['neurons'] == 'relu':
+    a, b = 0, 1
+    
 for i in range(len(feature_names)):
     xmin = np.min(xs[:,i])
     xmax = np.max(xs[:,i])
@@ -98,18 +116,22 @@ for i in range(len(target_names)):
     ymax = np.max(ys[:,i])
     ys[:,i] = (b-a)*(ys[:,i] - ymin)/(ymax-ymin)+a
 
+# Network architechture
+    
 #features = range(0, 16)
-features = (3, 1, 4, 2, 5, 6, 7, 8, 0)
-targets = (0,)
-
+features = params['features']
+targets = params['targets']
 
 input_dim = len(features)
-hidden_layers = (50, 30, 20, 10)
+hidden_layers = params['hidden_layers']
 output_dim = len(targets)
 
-reg_type = "l2"
-reg_v = 0.15
+# Regularization
+reg_type = params['reg_type']
+reg_v = params['reg_v']
 reg = {"l1":l1,"l2":l2}[reg_type](reg_v)
+
+# Model creation
 
 model = Sequential()
 model.add(Dense(hidden_layers[0], 
@@ -131,11 +153,11 @@ model.compile(loss='mean_squared_error',
               optimizer="adam", 
               metrics=metrics)
 
-print("Training with ", hidden_layers)
+# Training
 
-batch_size = 50
-epochs = 5
-validation_split = 0.2
+batch_size = params['batch_size']
+epochs = params['epochs']
+validation_split = params['validation_split']
 fit_history = model.fit(xs[:,features], ys[:,targets], 
                         batch_size = batch_size,
                         epochs = epochs,
@@ -144,6 +166,10 @@ fit_history = model.fit(xs[:,features], ys[:,targets],
                         validation_split=validation_split,
 #                        callbacks=[PlotCallback()]
                         )
+results = fit_history.history
+
+# Print results
+
 print('')
 header = ''
 
@@ -155,12 +181,38 @@ print(header)
 for e in range(epochs):
     l = ''
     for m in metrics:
-        v = fit_history.history[metric_keys[m]][e]
+        v = results[metric_keys[m]][e]
         l +='{:f} \t'.format(v)
     print(l)
             
+# Log results
+    
+param_names = params.keys()
+delimiter = ','
 
+fname = 'results.csv'
+try:
+    results_file = open('results.csv', 'r+')
+    results_file.read()
+except:
+    results_file = open('results.csv', 'w')
+    header = ''
+    for p in param_names:
+        header += p + delimiter
+    for m in metrics:
+        header += metric_abbs[m] + delimiter
+    results_file.write(header + '\n')
+    
+row = ''
+for p in param_names:
+   row += str(params[p]) + delimiter
+for m in metrics:
+    v = results[metric_keys[m]][-1]
+    row += '{:f}'.format(v) + delimiter
+results_file.write(row + '\n')
 
+results_file.close()
 
+    
           
           
