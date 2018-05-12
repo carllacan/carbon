@@ -137,16 +137,16 @@ model = Sequential()
 model.add(Dense(hidden_layers[0], 
                 input_dim = input_dim, 
                 kernel_initializer="normal", 
-                activation='sigmoid', 
+                activation=params['neurons'], 
                 kernel_regularizer=reg))
 for neurons in hidden_layers[1:]:
     model.add(Dense(neurons, 
                     kernel_initializer="normal", 
-                    activation='sigmoid', 
+                    activation=params['neurons'], 
                     kernel_regularizer=reg))
 model.add(Dense(output_dim, 
                 kernel_initializer="normal", 
-                activation='sigmoid',
+                activation=params['neurons'],
                 kernel_regularizer=reg))
                         
 model.compile(loss='mean_squared_error', 
@@ -205,9 +205,19 @@ except:
     
 row = ''
 for p in param_names:
-   row += str(params[p]) + delimiter
+    v = params[p]
+    if type(v) == tuple:
+        v = str(v)
+        v = v.replace(' ', '')
+        v = v.replace('(', '')
+        v = v.replace(')', '')
+        v = v.replace(',', '-')
+    else:
+        v = str(v)
+    row += v + delimiter
 for m in metrics:
     v = results[metric_keys[m]][-1]
+
     row += '{:f}'.format(v) + delimiter
 results_file.write(row + '\n')
 
