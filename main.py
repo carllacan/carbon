@@ -91,11 +91,11 @@ metric_keys = {'mean_squared_error':'val_mean_squared_error',
 params = {'neurons':'sigmoid',
           'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
           'targets' : (3,),
-          'hidden_layers' : (50, 30, 20, 10),
+          'hidden_layers' : (15, 12, 10),
           'reg_type' : 'l2',
-          'reg_v' : 0.15,
-          'batch_size' : 50,
-          'epochs' : 1,
+          'reg_v' : 0.05,
+          'batch_size' : 10,
+          'epochs' : 10,
           'validation_split' : 0.2}
 
 # normalization of training data
@@ -106,15 +106,17 @@ elif params['neurons'] == 'tanh':
 elif params['neurons'] == 'relu':
     a, b = 0, 1
     
-for i in range(len(feature_names)):
-    xmin = np.min(xs[:,i])
-    xmax = np.max(xs[:,i])
-    xs[:,i] = (b-a)*(xs[:,i] - xmin)/(xmax-xmin)+a
+#for i in range(len(feature_names)):
+#    xs[:,i] -= np.mean(xs[:,i])
+#    xmin = np.min(xs[:,i])
+#    xmax = np.max(xs[:,i])
+#    xs[:,i] = (b-a)*(xs[:,i] - xmin)/(xmax-xmin)+a
     
-for i in range(len(target_names)):
-    ymin = np.min(ys[:,i])
-    ymax = np.max(ys[:,i])
-    ys[:,i] = (b-a)*(ys[:,i] - ymin)/(ymax-ymin)+a
+#for i in range(len(target_names)):
+#    ys[:,i] -= np.mean(ys[:,i])
+#    ymin = np.min(ys[:,i])
+#    ymax = np.max(ys[:,i])
+#    ys[:,i] = (b-a)*(ys[:,i] - ymin)/(ymax-ymin)+a
 
 # Network architechture
     
@@ -149,7 +151,7 @@ model.add(Dense(output_dim,
                 activation=params['neurons'],
                 kernel_regularizer=reg))
                         
-model.compile(loss='mean_squared_error', 
+model.compile(loss='mean_absolute_error', 
               optimizer="adam", 
               metrics=metrics)
 
@@ -167,6 +169,31 @@ fit_history = model.fit(xs[:,features], ys[:,targets],
 #                        callbacks=[PlotCallback()]
                         )
 results = fit_history.history
+
+# Validation
+
+# TODO: write normalize and denormalize function for matrices
+
+
+#for i in range(len(feature_names)):
+#    xs[:,i] = (xmax-xmin)*(xs[:,i] - a)/(b-a)+xmin
+    
+inds_val = tuple(range(0, 100))
+xs_val = xs[0:2000,features]
+ys_val = ys[0:2000,targets]
+ys_pred = model.predict(xs_val)
+    
+# De-normalize
+for i in range(len(targets)):
+    ys_val =  (ymax-ymin)*(ys_val  - a)/(b-a)+ymin
+    ys_pred = (ymax-ymin)*(ys_pred - a)/(b-a)+ymin
+
+    
+me = np.mean(ys_val-ys_pred)
+rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
+mae = np.mean(np.abs(ys_val-ys_pred))
+
+print (me, rmse, mae)
 
 # Print results
 
