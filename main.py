@@ -46,7 +46,8 @@ def root_mean_squared_error(y_true, y_pred):
 datafolder = 'data'
 xs = np.genfromtxt('{}/dataX.csv'.format(datafolder), delimiter=',')
 ys = np.genfromtxt('{}/dataY.csv'.format(datafolder), delimiter=',')
-
+val_folds = xs[:,0]
+# TODO: load the val inds from where they are
 feature_names = ['PFTIds',
          'MODIS.MOD11A2.MODLST_Day_1km_QA1.values',
          'MODIS.MOD11A2.MODLST_Night_1km_QA1.values',
@@ -94,11 +95,12 @@ params = {'neurons':'linear',
 #          'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
           'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
           'targets' : (0,),
-          'hidden_layers' : (40, 30, 20),
+          'hidden_layers' : (30, 20, 10),
+          'dropout':0.0,
           'reg_type' : 'l2',
-          'reg_v' : 0.2,
-          'batch_size' : 10,
-          'epochs' : 50,
+          'reg_v' : 0.1,
+          'batch_size' : 5,
+          'epochs' : 10,
           'validation_split' : 0.05}
 
 # normalization of training data
@@ -111,14 +113,14 @@ elif params['neurons'] == 'linear':
 elif params['neurons'] == 'relu':
     a, b = 0, 1
     
-for i in range(len(feature_names)):
+for i in range(1, len(feature_names)):
 #    xs[:,i] -= np.mean(xs[:,i])
     xmin = np.min(xs[:,i])
     xmax = np.max(xs[:,i])
     xs[:,i] = (b-a)*(xs[:,i] - xmin)/(xmax-xmin)+a
     
 #for i in range(len(target_names)):
-##    ys[:,i] -= np.mean(ys[:,i])
+#    ys[:,i] -= np.mean(ys[:,i])
 #    ymin = np.min(ys[:,i])
 #    ymax = np.max(ys[:,i])
 #    ys[:,i] = (b-a)*(ys[:,i] - ymin)/(ymax-ymin)+a
@@ -138,102 +140,109 @@ reg_type = params['reg_type']
 reg_v = params['reg_v']
 reg = {"l1":l1,"l2":l2}[reg_type](reg_v)
 
-# Model creation
-
-model = Sequential()
-model.add(Dense(hidden_layers[0], 
-                input_dim = input_dim, 
-                kernel_initializer="normal", 
-                activation=params['neurons'], 
-                kernel_regularizer=reg))
-for neurons in hidden_layers[1:]:
-    model.add(Dense(neurons, 
+nfolds = 2 #update thisssssss
+results = np.zeros((3, nfolds))
+for fold in range(1, nfolds+1):
+    # Model definition
+    
+    model = Sequential()
+    model.add(Dense(hidden_layers[0], 
+                    input_dim = input_dim, 
                     kernel_initializer="normal", 
                     activation=params['neurons'], 
                     kernel_regularizer=reg))
-    model.add(Dropout(0.1))  
-model.add(Dense(output_dim, 
-                kernel_initializer="normal", 
-                activation=params['neurons'],
-                kernel_regularizer=reg))
-#model.add(Activation("linear"))  
-                        
-model.compile(loss='mse', 
-              optimizer="adam", 
-              metrics=metrics)
-
-# Training
-
-batch_size = params['batch_size']
-epochs = params['epochs']
-validation_split = params['validation_split']
-fit_history = model.fit(xs[:,features], ys[:,targets], 
-                        batch_size = batch_size,
-                        epochs = epochs,
-                        verbose=1,
-                        shuffle=True,
-                        validation_split=validation_split,
-#                        callbacks=[PlotCallback()]
-                        )
-results = fit_history.history
-
-# Validation
-
-# TODO: write normalize and denormalize function for matrices
-
-
-#for i in range(len(feature_names)):
-#    xs[:,i] = (xmax-xmin)*(xs[:,i] - a)/(b-a)+xmin
+    for neurons in hidden_layers[1:]:
+        model.add(Dense(neurons, 
+                        kernel_initializer="normal", 
+                        activation=params['neurons'], 
+                        kernel_regularizer=reg))
+        model.add(Dropout(params['dropout']))  
+    model.add(Dense(output_dim, 
+                    kernel_initializer="normal", 
+                    activation=params['neurons'],
+                    kernel_regularizer=reg))
+                            
+    model.compile(loss='mse', 
+                  optimizer="adam", 
+                  metrics=metrics)
     
-inds_val = tuple(range(0, 100))
-xs_val = xs[3000:4500,features]
-ys_val = ys[3000:4500,targets]
-ys_pred = model.predict(xs_val)
+    # Training
     
-# De-normalize
-#for i in range(len(targets)):
-#    ys_val =  (ymax-ymin)*(ys_val  - a)/(b-a)+ymin
-#    ys_pred = (ymax-ymin)*(ys_pred - a)/(b-a)+ymin
-
+    xs_train = xs[val_folds != fold,:][:,features]
+    xs_val = xs[val_folds == fold,:][:,features] 
+    ys_train = ys[val_folds != fold,:][:,targets]
+    ys_val = ys[val_folds == fold,:][:,targets]
     
-me = np.mean(ys_val-ys_pred)
-rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
-mae = np.mean(np.abs(ys_val-ys_pred))
-results_denorm = {'ME':me,
-                  'RMSE':rmse,
-                  'MAE':mae}
-print (me, rmse, mae)
+    batch_size = params['batch_size']
+    epochs = params['epochs']
+    validation_split = params['validation_split']
+    
+    print('Fold {}'.format(fold))
+    fit_history = model.fit(xs_train, ys_train, 
+                            batch_size = batch_size,
+                            epochs = epochs,
+                            verbose=1,
+                            shuffle=False,
+#                            validation_split=0,
+    #                        callbacks=[PlotCallback()]
+                            )
+#    results = fit_history.history
+    
+    # Validation
+    
+    # TODO: write normalize and denormalize function for matrices
+    
+    
+    #for i in range(len(feature_names)):
+    #    xs[:,i] = (xmax-xmin)*(xs[:,i] - a)/(b-a)+xmin
+        
+#    inds_val = tuple(range(0, 100))
+#    xs_val = xs[3000:4500,features]
+#    ys_val = ys[3000:4500,targets]
+    ys_pred = model.predict(xs_val)
+        
+    # De-normalize
+    #for i in range(len(targets)):
+    #    ys_val =  (ymax-ymin)*(ys_val  - a)/(b-a)+ymin
+    #    ys_pred = (ymax-ymin)*(ys_pred - a)/(b-a)+ymin
+    
+        
+    me = np.mean(ys_val-ys_pred)
+    rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
+    mae = np.mean(np.abs(ys_val-ys_pred))
+    
+    results[0,fold-1] = me
+    results[1,fold-1] = rmse
+    results[2,fold-1] = mae
 
 # Print results
 
-print('')
-header = ''
-
-for m in metrics:
-    abb = metric_abbs[m]
-    header += abb + '\t\t'
-print(header)
-    
-for e in range(epochs):
-    l = ''
-    for m in metrics:
-        v = results[metric_keys[m]][e]
-        l +='{:f} \t'.format(v)
+#print('')
+#header = ''
+#
+#for m in metrics:
+#    abb = metric_abbs[m]
+#    header += abb + '\t\t'
+#print(header)
+#    
+#for e in range(epochs):
+#    l = ''
+#    for m in metrics:
+#        v = results[metric_keys[m]][e]
+#        l +='{:f} \t'.format(v)
 #    print(l)
-print(l)
 
 # Print results
 
-print('Denormalized errors')
 print('')
-header = ''
 
 print('ME \t\t RMSE \t\t MAE')
-l = ''
-for m in ('ME', 'RMSE', 'MAE'):
-    v = results_denorm[m]
-    l +='{:f} \t'.format(v)
-print(l)
+for fold in range(0, nfolds):
+    l = ''
+    for m in (0, 1, 2):
+        v = results[m,fold]
+        l +='{:f} \t'.format(v)
+    print(l)
 
             
 # Log results
@@ -241,12 +250,12 @@ print(l)
 param_names = params.keys()
 delimiter = ','
 
-fname = 'results.csv'
+fname = 'results2.csv'
 try:
-    results_file = open('results.csv', 'r+')
+    results_file = open(fname, 'r+')
     results_file.read()
 except:
-    results_file = open('results.csv', 'w')
+    results_file = open(fname, 'w')
     header = ''
     for p in param_names:
         header += p + delimiter
@@ -269,9 +278,8 @@ for p in param_names:
         v = str(v)
     row += v + delimiter
     
-row = ''
-for m in ('ME', 'RMSE', 'MAE'):
-    v = results_denorm[m]
+for m in (0,1,2):
+    v = np.mean(results[m,:])
     row +='{:f}'.format(v) + delimiter
 #
 #for m in metrics:
@@ -282,6 +290,6 @@ results_file.write(row + '\n')
 
 results_file.close()
 
-    
+# TODO: log normalization range
           
           
