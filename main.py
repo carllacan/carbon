@@ -37,23 +37,24 @@ datafolder = 'data'
 xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=',')
 ys = np.genfromtxt(datafolder + '/dataY.csv', delimiter=',')
 vs =  np.genfromtxt(datafolder + '/inds_crossval.csv')
-
+# MSC-day GPP
 feature_names = ['PFTIds',
-         'MODIS.MOD11A2.MODLST_Day_1km_QA1.values',
-         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values',
-         'MODIS.MCD43A4.MODNDWI.values',
-         'MODIS.MOD11A2.MODLST_Day_1km_QA1_MSC.Max',
-         'MODIS.MOD11A2.MODNDVIRg.values',
-         'MODIS.MOD13Q1.MOD250m_16_days_EVI_QA1_MSC.Amp',
-         'MODIS.MOD13Q1.MOD250m_16_days_MIR_reflectance_QA1_MSC.Amp',
-         'MODIS.MOD15A2.MODLai_1km_QA1_MSCmatch',
-         'MODIS.MCD43A4.MODEVILST_MSCmatch',
-         'MODIS.MCD43A4.MODFPARRg_MSC.Max',
-         'MODIS.MOD11A2.MODEVILST.values_ano',
-         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values_ano',
-         'Rg',
-         'Rpot',
-         'oriLongTermMeteoData.Rg_all_MSC.Min']
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1.values', #LST day GPP LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values', # LST night GPP LE
+         'MODIS.MCD43A4.MODNDWI.values', #NDWI GPP
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1_MSC.Max', # MSC-day GPP
+         'MODIS.MOD11A2.MODNDVIRg.values', # NDVI times Rg GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_EVI_QA1_MSC.Amp', # EVI GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_MIR_reflectance_QA1_MSC.Amp', # MIR GPP
+         'MODIS.MOD15A2.MODLai_1km_QA1_MSCmatch', # LAI GPP
+         'MODIS.MCD43A4.MODEVILST_MSCmatch', # EVIxLST LE
+         'MODIS.MCD43A4.MODFPARRg_MSC.Max', # fAPARxRg LE
+         'MODIS.MOD11A2.MODEVILST.values_ano', #EVIxLSTday? LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values_ano', # LST-night yearly?
+         'Rg', # Rg LE
+         'Rpot', # Rpot LE
+         'oriLongTermMeteoData.Rg_all_MSC.Min' # Rg-MSC-min LE
+         ]
 
 target_names = ['GPP',
                 'NEE',
@@ -62,148 +63,39 @@ target_names = ['GPP',
                 'Rn',
                 'H']
 
+all_features = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+gpp_features = (1, 2, 3, 4, 5, 6, 7, 8)
+le_features = (1, 2, 9, 10, 11, 13, 14, 15)
 
 # Choose params
 
 runs = []
 
 runs.append({'neurons':'linear',
-#             'features' : range(0, 16),
-             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (15, 10, 5),
+              'features' : le_features, ¡
+              'targets' : (3,),
+              'hidden_layers' : (60, 40, 20, 10),
               'dropout':0.00,
               'reg_type' : 'l2',
               'reg_v' : 0.01,
-              'batch_size' : 5,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-
-runs.append({'neurons':'linear',
-#             'features' : range(0, 16),
-             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (40, 30),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
+              'batch_size' : 10,
               'epochs' : 15,
               'validation_split' : 0.0,
               'note':''})
     
 
-runs.append({'neurons':'linear',
-#             'features' : range(0, 16),
-             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 12,
-              'validation_split' : 0.0,
-              'note':''})
     
-
-runs.append({'neurons':'linear',
-#             'features' : range(0, 16),
-             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (40, 40, 30, 20),
-              'dropout':0.03,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
     
-
-runs.append({'neurons':'linear',
-#             'features' : range(0, 16),
-             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-             'features' : range(0, 16),
-#             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-             'features' : range(0, 16),
-#             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (80, 40),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-             'features' : range(0, 16),
-#             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 5,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-
-runs.append({'neurons':'linear',
-             'features' : range(0, 16),
-#             'features' : (3, 1, 4, 2, 5, 6, 7, 8, 0),
-#            'features' : (4, 2, 5, 3, 6, 7, 8, 9, 1),
-              'targets' : (0,1,2, 3, 4, 5),
-              'hidden_layers' : (20, 15, 10),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.00,
-              'batch_size' : 5,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
 # normalization of training data
     
 for i in range(0, len(feature_names)):
     xs[:,i] -= np.mean(xs[:,i])
     xs[:,i] /= np.std(xs[:,i])
-#    xmin = np.min(xs[:,i])
-#    xmax = np.max(xs[:,i])
-#    xs[:,i] = (b-a)*(xs[:,i] - xmin)/(xmax-xmin)+a
+    
+    
+for i in range(0, len(target_names)):
+    ys[:,i] -= np.mean(ys[:,i])
+#    ys[:,i] /= np.std(ys[:,i])
     
 for r, params in enumerate(runs):
     # Network architechture
@@ -230,16 +122,19 @@ for r, params in enumerate(runs):
         model = Sequential()
         model.add(Dense(hidden_layers[0], 
                         input_dim = input_dim, 
+                        bias_initializer="zeros", 
                         kernel_initializer="normal", 
                         activation=params['neurons'], 
                         kernel_regularizer=reg))
         for neurons in hidden_layers[1:]:
             model.add(Dense(neurons, 
+                            bias_initializer="zeros", 
                             kernel_initializer="normal", 
                             activation=params['neurons'], 
                             kernel_regularizer=reg))
             model.add(Dropout(params['dropout']))  
         model.add(Dense(output_dim, 
+                        bias_initializer="zeros", 
                         kernel_initializer="normal", 
                         activation=params['neurons'],
                         kernel_regularizer=reg))
