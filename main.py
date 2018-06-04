@@ -76,107 +76,45 @@ runs = []
 
 # GPP
 
-runs.append({'neurons':'linear',
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0,),
+#              'hidden_layers' : (20, 15, 10),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.01,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0,),
+#              'hidden_layers' : (30, 20, 15),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0,),
+#              'hidden_layers' : (40, 30, 20),
+#              'dropout':0.01,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+runs.append({'neurons':'linear',  # BEST
               'features' : gpp_features, 
               'targets' : (0,),
-              'hidden_layers' : (20, 15, 10),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.01,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0,),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0,),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0,),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.03,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0,),
-              'hidden_layers' : (50, 50, 50, 40, 40, 30),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' :10,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
-# LE
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3,),
-              'hidden_layers' : (20, 15, 10),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.01,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3,),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3,),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3,),
               'hidden_layers' : (60, 40, 20),
               'dropout':0.03,
               'reg_type' : 'l2',
@@ -186,20 +124,82 @@ runs.append({'neurons':'linear',
               'validation_split' : 0.0,
               'note':''})
 #    
-runs.append({'neurons':'linear',
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0,),
+#              'hidden_layers' : (50, 50, 50, 40, 40, 30),
+#              'dropout':0.05,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :10,
+#              'epochs' : 15,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+## LE
+#    
+runs.append({'neurons':'linear', # BEST
               'features' : le_features, 
               'targets' : (3,),
-              'hidden_layers' : (80, 60, 40, 20),
-              'dropout':0.05,
+              'hidden_layers' : (20, 15, 10),
+              'dropout':0.00,
               'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' :10,
-              'epochs' : 15,
+              'reg_v' : 0.01,
+              'batch_size' : 10,
+              'epochs' : 10,
               'validation_split' : 0.0,
               'note':''})
-    
-# ALL CARBON
-
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3,),
+#              'hidden_layers' : (30, 20, 15),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3,),
+#              'hidden_layers' : (40, 30, 20),
+#              'dropout':0.01,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3,),
+#              'hidden_layers' : (60, 40, 20),
+#              'dropout':0.03,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+##    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3,),
+#              'hidden_layers' : (80, 60, 40, 20),
+#              'dropout':0.05,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :10,
+#              'epochs' : 15,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+## ALL CARBON
+#
 runs.append({'neurons':'linear',
               'features' : gpp_features, 
               'targets' : (0, 1, 2),
@@ -211,58 +211,58 @@ runs.append({'neurons':'linear',
               'epochs' : 10,
               'validation_split' : 0.0,
               'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0, 1, 2),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0, 1, 2),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0, 1, 2),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.03,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : gpp_features, 
-              'targets' : (0, 1, 2),
-              'hidden_layers' : (50, 50, 50, 40, 40, 30),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' :10,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
-    
-# ALL ENERGY
-
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0, 1, 2),
+#              'hidden_layers' : (30, 20, 15),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0, 1, 2),
+#              'hidden_layers' : (40, 30, 20),
+#              'dropout':0.01,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0, 1, 2),
+#              'hidden_layers' : (60, 40, 20),
+#              'dropout':0.03,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : gpp_features, 
+#              'targets' : (0, 1, 2),
+#              'hidden_layers' : (50, 50, 50, 40, 40, 30),
+#              'dropout':0.05,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :10,
+#              'epochs' : 15,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#    
+## ALL ENERGY
+#
 runs.append({'neurons':'linear',
               'features' : le_features, 
               'targets' : (3, 4, 5),
@@ -274,55 +274,55 @@ runs.append({'neurons':'linear',
               'epochs' : 10,
               'validation_split' : 0.0,
               'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3, 4, 5),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3, 4, 5),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3, 4, 5),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.03,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : le_features, 
-              'targets' : (3, 4, 5),
-              'hidden_layers' : (80, 60, 40, 20),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' :10,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
-    
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3, 4, 5),
+#              'hidden_layers' : (30, 20, 15),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3, 4, 5),
+#              'hidden_layers' : (40, 30, 20),
+#              'dropout':0.01,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3, 4, 5),
+#              'hidden_layers' : (60, 40, 20),
+#              'dropout':0.03,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : le_features, 
+#              'targets' : (3, 4, 5),
+#              'hidden_layers' : (80, 60, 40, 20),
+#              'dropout':0.05,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :10,
+#              'epochs' : 15,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
 # ALL 
     
 runs.append({'neurons':'linear',
@@ -336,56 +336,72 @@ runs.append({'neurons':'linear',
               'epochs' : 10,
               'validation_split' : 0.0,
               'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : all_features, 
+#              'targets' : (0, 1, 2, 3, 4, 5),
+#              'hidden_layers' : (30, 20, 15),
+#              'dropout':0.00,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : all_features, 
+#              'targets' : (0, 1, 2, 3, 4, 5),
+#              'hidden_layers' : (40, 30, 20),
+#              'dropout':0.01,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : all_features, 
+#              'targets' : (0, 1, 2, 3, 4, 5),
+#              'hidden_layers' : (60, 40, 20),
+#              'dropout':0.03,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' : 10,
+#              'epochs' : 10,
+#              'validation_split' : 0.0,
+#              'note':''})
+#    
+#runs.append({'neurons':'linear',
+#              'features' : all_features, 
+#              'targets' : (0, 1, 2, 3, 4, 5),
+#              'hidden_layers' : (50, 50, 50, 40, 40, 30),
+#              'dropout':0.05,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :10,
+#              'epochs' : 15,
+#              'validation_split' : 0.0,
+#              'note':''})
     
-runs.append({'neurons':'linear',
-              'features' : all_features, 
-              'targets' : (0, 1, 2, 3, 4, 5),
-              'hidden_layers' : (30, 20, 15),
-              'dropout':0.00,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : all_features, 
-              'targets' : (0, 1, 2, 3, 4, 5),
-              'hidden_layers' : (40, 30, 20),
-              'dropout':0.01,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : all_features, 
-              'targets' : (0, 1, 2, 3, 4, 5),
-              'hidden_layers' : (60, 40, 20),
-              'dropout':0.03,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' : 10,
-              'epochs' : 10,
-              'validation_split' : 0.0,
-              'note':''})
-    
-runs.append({'neurons':'linear',
-              'features' : all_features, 
-              'targets' : (0, 1, 2, 3, 4, 5),
-              'hidden_layers' : (50, 50, 50, 40, 40, 30),
-              'dropout':0.05,
-              'reg_type' : 'l2',
-              'reg_v' : 0.05,
-              'batch_size' :10,
-              'epochs' : 15,
-              'validation_split' : 0.0,
-              'note':''})
+# TEST RUN
+#runs =      [{'neurons':'linear',
+#              'features' : all_features, 
+#              'targets' : (0, 1, 2, 3, 4, 5),
+#              'hidden_layers' : (10,),
+#              'dropout':0.0,
+#              'reg_type' : 'l2',
+#              'reg_v' : 0.05,
+#              'batch_size' :100,
+#              'epochs' : 1,
+#              'validation_split' : 0.0,
+#              'note':''}]
     
     
+#    fname = 'resultsSO_6d1.csv'
+#    fname = 'resultsMO_2d3.csv'
+fname = 'results_fixed_seed_bestmodels.csv'
     
 # normalization of training data
     
@@ -467,12 +483,13 @@ for r, params in enumerate(runs):
         
         # Validation
         
+        ys_pred = model.predict(xs_val)
         for t, tar in enumerate(targets):
-            ys_pred = model.predict(xs_val)
-                     
-            me = np.mean(ys_val-ys_pred)
-            rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
-            mae = np.mean(np.abs(ys_val-ys_pred))
+            ys_val_t = ys_val[:,t]      
+            ys_pred_t = ys_pred[:,t]      
+            me = np.mean(ys_val_t-ys_pred_t)
+            rmse = np.sqrt(np.mean((ys_val_t-ys_pred_t)**2))
+            mae = np.mean(np.abs(ys_val_t-ys_pred_t))
             
             results[0, fold-1, t] = me
             results[1, fold-1, t] = rmse
@@ -502,9 +519,6 @@ for r, params in enumerate(runs):
     param_names = params.keys()
     delimiter = ','
     
-#    fname = 'resultsSO_6d1.csv'
-#    fname = 'resultsMO_2d3.csv'
-    fname = 'results_fixed_seed.csv'
     try:
         results_file = open(fname, 'r+')
         results_file.read()
