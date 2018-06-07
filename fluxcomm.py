@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#import random
+import numpy as np
+
+import utils
+
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.regularizers import l2, l1
+
+# TODO: try  normalized values with  biases initialized to zero
+
+
+
+# Load data
+    
+datafolder = 'data'
+xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=',')
+ys = np.genfromtxt(datafolder + '/dataY.csv', delimiter=',')
+vs =  np.genfromtxt(datafolder + '/inds_crossval.csv')
+# MSC-day GPP
+feature_names = ['PFTIds',
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1.values', #LST day GPP LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values', # LST night GPP LE
+         'MODIS.MCD43A4.MODNDWI.values', #NDWI GPP
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1_MSC.Max', # MSC-day GPP
+         'MODIS.MOD11A2.MODNDVIRg.values', # NDVI times Rg GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_EVI_QA1_MSC.Amp', # EVI GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_MIR_reflectance_QA1_MSC.Amp', # MIR GPP
+         'MODIS.MOD15A2.MODLai_1km_QA1_MSCmatch', # LAI GPP
+         'MODIS.MCD43A4.MODEVILST_MSCmatch', # EVIxLST LE
+         'MODIS.MCD43A4.MODFPARRg_MSC.Max', # fAPARxRg LE
+         'MODIS.MOD11A2.MODEVILST.values_ano', #EVIxLSTday? LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values_ano', # LST-night yearly?
+         'Rg', # Rg LE
+         'Rpot', # Rpot LE
+         'oriLongTermMeteoData.Rg_all_MSC.Min' # Rg-MSC-min LE
+         ]
+
+target_names = ['GPP',
+                'NEE',
+                'TER',
+                'LE',
+                'Rn',
+                'H']
+
+all_features = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+gpp_features = (1, 2, 3, 4, 5, 6, 7, 8)
+le_features = (1, 2, 9, 10, 11, 13, 14, 15)
+
+# Choose params
+
+runs_file = 'testruns.csv'
+results_file = 'results_fixed_seed_bestmodels.csv'
+    
+# Load the parameters of the runs
+runs = utils.load_runs(runs_file)
+
+# Normalization of training data
+    
+for i in range(0, len(feature_names)):
+    xs[:,i] -= np.mean(xs[:,i])
+    xs[:,i] /= np.std(xs[:,i])
+    
+    
+for i in range(0, len(target_names)):
+    ys[:,i] -= np.mean(ys[:,i])
+#    ys[:,i] /= np.std(ys[:,i])
+    
+for r, params in enumerate(runs):
+    # Network architecture
+    features = params['features']
+    targets = params['targets']
+    
+    input_dim = len(features)
+    hidden_layers = params['hidden_layers']
+    output_dim = len(targets)
+    
+    # Regularization
+    reg_type = params['reg_type']
+    reg_v = params['reg_v']
+    reg = {"l1":l1,"l2":l2}[reg_type](reg_v)
+    
+    optimizer = "adam"
+    
+    nfolds = 1#np.unique(vs).size
+    
+    results = np.zeros((3, nfolds+1, len(targets)))
+    print('')
+    for fold in range(1, nfolds+1):
+        # Model definition
+        
+        model = Sequential()
+        model.add(Dense(hidden_layers[0], 
+                        input_dim = input_dim, 
+                        bias_initializer="zeros", 
+                        kernel_initializer="normal", 
+                        activation='linear', 
+                        kernel_regularizer=reg))
+        for neurons in hidden_layers[1:]:
+            model.add(Dense(neurons, 
+                            bias_initializer="zeros", 
+                            kernel_initializer="normal", 
+                            activation='linear', 
+                            kernel_regularizer=reg))
+            model.add(Dropout(params['dropout']))  
+        model.add(Dense(output_dim, 
+                        bias_initializer="zeros", 
+                        kernel_initializer="normal", 
+                        activation='linear',
+                        kernel_regularizer=reg))
+                                
+        model.compile(loss='mse', 
+                      optimizer=optimizer, 
+                      metrics=[])
+        
+        # Training
+        
+        xs_train = xs[vs != fold,:][:,features]
+        xs_val = xs[vs == fold,:][:,features] 
+        ys_train = ys[vs != fold,:][:,targets]
+        ys_val = ys[vs == fold,:][:,targets]
+        
+        batch_size = params['batch_size']
+        epochs = params['epochs']
+        
+        print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold, nfolds))
+        fit_history = model.fit(xs_train, ys_train, 
+                                batch_size = batch_size,
+                                epochs = epochs,
+                                verbose=1,
+                                )
+        
+        # Validation
+        
+        ys_pred = model.predict(xs_val)
+        for t, tar in enumerate(targets):
+            ys_val_t = ys_val[:,t]      
+            ys_pred_t = ys_pred[:,t]      
+            me = np.mean(ys_val_t-ys_pred_t)
+            rmse = np.sqrt(np.mean((ys_val_t-ys_pred_t)**2))
+            mae = np.mean(np.abs(ys_val_t-ys_pred_t))
+            
+            results[0, fold-1, t] = me
+            results[1, fold-1, t] = rmse
+            results[2, fold-1, t] = mae
+        
+    # Record mean errors
+    for t, tar in enumerate(targets):
+        results[0,fold,t] = np.mean(results[0,:,t])
+        results[1,fold,t] = np.mean(results[1,:,t])
+        results[2,fold,t] = np.mean(results[2,:,t])
+        
+    # Print results
+    
+    print('')
+    
+    for t, tar in enumerate(targets):
+        print('ME_{0} \t\t RMSE_{0} \t MAE_{0}'.format(tar))
+        for fold in range(0, nfolds):
+            l = ''
+            for m in (0, 1, 2):
+                v = results[m,fold,t]
+                l +='{:f} \t'.format(v)
+            print(l)
+        
+                
+    # Log results
+        
+    param_names = params.keys()
+    delimiter = ','
+    
+    try:
+        results_file = open(results_file, 'r+')
+        results_file.read()
+    except:
+        results_file = open(results_file, 'w')
+        header = ''
+        for p in param_names:
+            header += p + delimiter
+        
+        for t, tar in enumerate(targets):
+            for m in  ('ME', 'RMSE', 'MAE'):
+                header += m + '_' + str(tar) + delimiter # TODO: use format()
+        results_file.write(header + '\n')
+        
+    row = ''
+    for p in param_names:
+        v = params[p]
+        if type(v) == tuple:
+            v = str(v)
+            v = v.replace(' ', '')
+            v = v.replace('(', '')
+            v = v.replace(')', '')
+            v = v.replace(',', '-')
+        else:
+            v = str(v)
+        row += v + delimiter
+        
+    for t, tar in enumerate(targets):
+        for m in (0,1,2):
+            v = np.mean(results[m,:,t])
+            row +='{:f}'.format(v) + delimiter
+        
+    results_file.write(row + '\n')
+    
+    results_file.close()
