@@ -56,5 +56,3 @@ def weight_hist(model):
     ws = np.hstack([l.flatten() for l in model.get_weights()])
     plt.figure()
     plt.hist(ws, bins=100)
-
-runs = load_runs('testruns.csv')

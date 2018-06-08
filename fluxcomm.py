@@ -52,13 +52,15 @@ all_features = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 gpp_features = (1, 2, 3, 4, 5, 6, 7, 8)
 le_features = (1, 2, 9, 10, 11, 13, 14, 15)
 
-# Choose params
+# Set folder
+folder = 'results/results_test'
+start_at = 1
 
-runs_file = 'testruns.csv'
-results_filename = 'results_fixed_seed_bestmodels.csv'
-    
+runs_filename = folder + '/runs.csv'
+results_filename = folder + '/results.csv'
+
 # Load the parameters of the runs
-runs = utils.load_runs(runs_file)
+runs = utils.load_runs(runs_filename)
 
 nfolds = 2#np.unique(vs).size
     
@@ -73,7 +75,7 @@ for i in range(0, len(target_names)):
     ys[:,i] -= np.mean(ys[:,i])
 #    ys[:,i] /= np.std(ys[:,i])
     
-for r, params in enumerate(runs):
+for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Network architecture
     features = params['features']
     targets = params['targets']
@@ -86,7 +88,10 @@ for r, params in enumerate(runs):
     reg_type = params['reg_type']
     reg_v = params['reg_v']
     reg = {"l1":l1,"l2":l2}[reg_type](reg_v)
-    
+            
+    batch_size = params['batch_size']
+    epochs = params['epochs']
+        
     optimizer = "adam"
     
     
@@ -125,9 +130,7 @@ for r, params in enumerate(runs):
         xs_val = xs[vs == fold,:][:,features] 
         ys_train = ys[vs != fold,:][:,targets]
         ys_val = ys[vs == fold,:][:,targets]
-        
-        batch_size = params['batch_size']
-        epochs = params['epochs']
+
         
         print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold, nfolds))
         fit_history = model.fit(xs_train, ys_train, 
@@ -152,6 +155,18 @@ for r, params in enumerate(runs):
             results[1, fold, t] = rmse
             results[2, fold, t] = mae
             results[3, fold, t] = pearson
+            
+    # Train and save final model
+    print('Run {}/{}, final model'.format(r+1, len(runs)))
+    xs_train = xs[:,features]
+    ys_train = ys[:,targets]
+    fit_history = model.fit(xs_train, ys_train, 
+                            batch_size = batch_size,
+                            epochs = epochs,
+                            verbose=1,
+                            )
+    model.save(folder + '/run{}.h5'.format(r+1))
+    
     # Record mean errors
     for t, tar in enumerate(targets):
         for e in range(4):
@@ -159,7 +174,7 @@ for r, params in enumerate(runs):
         
     # Print results
     
-    print('\n Run {} results \n'.format(r))
+    print('\n Run {}/{} results \n'.format(r+1, len(runs)))
     header = 'Fold \t ME_{0} \t\t RMSE_{0} \t MAE_{0} \t\t Pearson_{0}'
     for t, tar in enumerate(targets):
         print(header.format(tar))
@@ -182,7 +197,7 @@ for r, params in enumerate(runs):
         results_file = open(results_filename, 'r+')
         results_file.read()
     except:
-        results_file = open(results_file, 'w')
+        results_file = open(results_filename, 'w')
         header = ''
         for p in param_names:
             header += p + delimiter
