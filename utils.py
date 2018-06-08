@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#import numpy as np
-#from matplotlib import pyplot as plt
-#from keras.callbacks import Callback
+import numpy as np
+from matplotlib import pyplot as plt
+from keras.callbacks import Callback
 
 #class PlotCallback(Callback):
 #    # Plots accuracy and loss after each epoch
@@ -51,5 +51,10 @@ def load_runs(filename):
 
     # TODO: can I one-line this for?
     return runs
+
+def weight_hist(model):
+    ws = np.hstack([l.flatten() for l in model.get_weights()])
+    plt.figure()
+    plt.hist(ws, bins=100)
 
 runs = load_runs('testruns.csv')

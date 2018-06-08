@@ -169,6 +169,8 @@ for r, params in enumerate(runs):
                 v = results[e,fold,t]
                 l +='{:f} \t'.format(v)
             print(l)
+            
+    utils.weight_hist(model)
         
                 
     # Log results
