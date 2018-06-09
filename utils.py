@@ -52,10 +52,26 @@ def load_runs(filename):
     # TODO: can I one-line this for?
     return runs
 
+def get_neurons(model):
+#    return np.hstack([l.flatten() for l in model.get_weights()])
+    weights = []
+    layers = model.get_weights()
+    for i, l in enumerate(layers):
+        for j, ws in enumerate(l):
+            if type(ws) is np.float32:
+                weights.append(layers[i][j])
+            else:
+                for k, w in enumerate(ws):
+                    weights.append(w)
+    return weights
+                    
+                    
+
 def weight_hist(model):
-    ws = np.hstack([l.flatten() for l in model.get_weights()])
+    ws = get_neurons(model)
     plt.figure()
     plt.hist(ws, bins=100)
+    plt.show()
     
 def evaluate_model(ys_val, ys_pred):
     

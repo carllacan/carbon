@@ -27,7 +27,7 @@ le_features = (1, 2, 9, 10, 11, 13, 14, 15)
 
 # Set folder
 folder = 'results/results_test'
-start_at = 3
+start_at = 1
 
 runs_filename = folder + '/runs.csv'
 results_filename = folder + '/results.csv'
