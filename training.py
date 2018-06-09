@@ -29,7 +29,7 @@ results_filename = resultsfolder + '/results.csv'
 # Load the parameters of the runs
 runs = utils.load_runs(runs_filename)
 
-nfolds = 1#np.unique(vs).size
+nfolds = np.unique(vs).size
     
 for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Network architecture

@@ -3,37 +3,34 @@
 #import os
 #from jinja2 import Template
 
-# TODO: make it work with the nex fileformat
-
-runs = (0, 0, 0, 1, 1, 1, 2, 3, 4) # to be exported
+runs = (0, 1, 2, 3, 4, 5, 6, 7, 8) # runs to be exported
+resultsfolder = 'results/results_test'
+results_filename = resultsfolder + '/results.csv'
 delimiter = ','
 colignore = 11
 enum = 3 # number of errors
 
-fname = 'results_fixed_seed_bestmodels.csv'
-f = open(fname, 'r')
+f = open(results_filename, 'r')
 
 results = []
-entries = f.readlines()[1:]
-for r in runs:
-    l = entries[r]
-    errors = l.strip('\n').split(delimiter)[colignore:-1]
-    # append each group of results
-    for i in range(0, len(errors), enum):
-        results.append(errors[i:i+enum])
-        results[-1].append('')
+lines = f.readlines()[1:]
+for l in lines:
+    values = l.strip('\n').split(delimiter)
+    if values[0] in runs:
+        errors = values[2:-2]
+        results.append(errors)
          
-t = open('tabletemp.tex')
-dest = open('result_summary.tex', 'w')
+t = open('templates/tabletemp.tex')
+dest = open(resultsfolder + 'result_summary.tex', 'w')
 
 i = 0
 for l in t.readlines():
     line = l
-    if ' {} ' in l:
-        for j in range(l.count(' {} ')):
+    if '%VAR' in l:
+        for j in range(l.count('%VAR')):
             error = results[i][j]
-            stringed = ' {} '.format(error)
-            line = line.replace(' {} ', stringed)
+            stringed = '{:f}'.format(error)
+            line = line.replace('%VAR', stringed)
         i += 1
     dest.write(line + '\n')
     
@@ -72,14 +69,3 @@ t.close()
 #    
 #dest.close()
 #t.close()
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    

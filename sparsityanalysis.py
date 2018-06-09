@@ -29,13 +29,16 @@ for r in range(numruns):
     targets = runs[r]['targets']
     xs_val = xs[:,features]
     ys_val = ys[:,targets]
+    
     results = utils.evaluate_model(model, xs_val, ys_val)
-    print("Run {}".format(r))
+    print("\nRun {}".format(r))
     utils.print_all_results(results, targets)
+    
+    # Decide pruning threshold
     ns = np.abs( utils.get_neurons(model))
     threshold = np.percentile(ns, pruning)
     layers = model.get_weights()
-    p = 0.0
+    p = 0.0 # pruned neuron counter
     for i, l in enumerate(layers):
         for j, ws in enumerate(l):
             if type(ws) is np.float32:
@@ -51,10 +54,6 @@ for r in range(numruns):
     model.set_weights(layers)
     utils.weight_hist(model)
     
-    features = runs[r]['features']
-    targets = runs[r]['targets']
-    xs_val = xs[:,features]
-    ys_val = ys[:,targets]
     results = utils.evaluate_model(model, xs_val, ys_val)
-    print("Run {}".format(r))
+    print("\nRun {}".format(r))
     utils.print_all_results(results, targets)
