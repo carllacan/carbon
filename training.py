@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#import random
 import numpy as np
-
+#import random
 import utils
+
+# Fix PRG seed
+np.random.seed(1729)
 
 from keras.models import Sequential
 from keras.layers import Dense
@@ -12,7 +14,6 @@ from keras.layers import Dropout
 from keras.regularizers import l2, l1
 
 # TODO: try  normalized values with  biases initialized to zero
-
 
 
 # Load data
@@ -54,7 +55,7 @@ le_features = (1, 2, 9, 10, 11, 13, 14, 15)
 
 # Set folder
 folder = 'results/results_test'
-start_at = 1
+start_at = 3
 
 runs_filename = folder + '/runs.csv'
 results_filename = folder + '/results.csv'
@@ -62,7 +63,7 @@ results_filename = folder + '/results.csv'
 # Load the parameters of the runs
 runs = utils.load_runs(runs_filename)
 
-nfolds = 2#np.unique(vs).size
+nfolds = 1#np.unique(vs).size
     
 # Normalization of training data
     
@@ -142,22 +143,15 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         # Validation
         
         ys_pred = model.predict(xs_val)
-        for t, tar in enumerate(targets):
-            ys_val_t = ys_val[:,t]      
-            ys_pred_t = ys_pred[:,t]      
-            me = np.mean(ys_val_t-ys_pred_t)
-            rmse = np.sqrt(np.mean((ys_val_t-ys_pred_t)**2))
-            mae = np.mean(np.abs(ys_val_t-ys_pred_t))
-            pearson = np.cov((ys_val_t, ys_pred_t))[1,0]/(
-                    ys_val_t.std()*ys_pred_t.std())
-            
+        for t, tar in enumerate(targets):            
+            me, rmse, mae, p = utils.evaluate_model(ys_val[:,t], ys_pred[:,t])
             results[0, fold, t] = me
             results[1, fold, t] = rmse
             results[2, fold, t] = mae
-            results[3, fold, t] = pearson
+            results[3, fold, t] = p
             
     # Train and save final model
-    print('Run {}/{}, final model'.format(r+1, len(runs)))
+    print('Run {}/{}, final model training'.format(r+1, len(runs)))
     xs_train = xs[:,features]
     ys_train = ys[:,targets]
     fit_history = model.fit(xs_train, ys_train, 
@@ -175,19 +169,12 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Print results
     
     print('\n Run {}/{} results \n'.format(r+1, len(runs)))
-    header = 'Fold \t ME_{0} \t\t RMSE_{0} \t MAE_{0} \t\t Pearson_{0}'
     for t, tar in enumerate(targets):
-        print(header.format(tar))
+        print("Target {}".format(tar))
         for fold in range(nfolds+1):
-            l = '{} \t'.format(fold if fold != nfolds else 'Mean')
-            for e in (0, 1, 2, 3):
-                v = results[e,fold,t]
-                l +='{:f} \t'.format(v)
-            print(l)
-            
-    utils.weight_hist(model)
-        
-                
+            rowname = 'Fold {}'.format(fold) if fold != nfolds else 'Mean'
+            utils.print_results(results[:,fold,t], rowname)
+      
     # Log results
         
     param_names = params.keys()
@@ -198,33 +185,36 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         results_file.read()
     except:
         results_file = open(results_filename, 'w')
-        header = ''
-        for p in param_names:
-            header += p + delimiter
-        
-        for t, tar in enumerate(targets):
-            for m in  ('ME', 'RMSE', 'MAE', 'Pearson'):
-                header += m + '_' + str(tar) + delimiter # TODO: use format()
+#        header = ''
+#        for p in param_names:
+#            header += p + delimiter
+#        for t, tar in enumerate(targets):
+#            for m in  ('ME', 'RMSE', 'MAE', 'Pearson'):
+#                header += '{}_{}'.format(m, tar) + delimiter
+        colnames = 'Run', 'Target', 'ME', 'RMSE', 'MAE', 'Pearson'
+        header = delimiter.join(colnames)
         results_file.write(header + '\n')
         
-    row = ''
-    for p in param_names:
-        v = params[p]
-        if type(v) == tuple:
-            v = str(v)
-            v = v.replace(' ', '')
-            v = v.replace('(', '')
-            v = v.replace(')', '')
-            v = v.replace(',', '-')
-        else:
-            v = str(v)
-        row += v + delimiter
+#    row = ''
+#    for p in param_names:
+#        v = params[p]
+#        if type(v) == tuple:
+#            v = str(v)
+#            v = v.replace(' ', '')
+#            v = v.replace('(', '')
+#            v = v.replace(')', '')
+#            v = v.replace(',', '-')
+#        else:
+#            v = str(v)
+#        row += v + delimiter
         
     for t, tar in enumerate(targets):
+        row = '{},{},'.format(r, tar)
         for m in (0,1,2):
             v = np.mean(results[m,:,t])
             row +='{:f}'.format(v) + delimiter
+        # can I one-line this?
         
-    results_file.write(row + '\n')
+        results_file.write(row + '\n')
     
     results_file.close()

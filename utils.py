@@ -56,3 +56,23 @@ def weight_hist(model):
     ws = np.hstack([l.flatten() for l in model.get_weights()])
     plt.figure()
     plt.hist(ws, bins=100)
+    
+def evaluate_model(ys_val, ys_pred):
+    
+    me = np.mean(ys_val-ys_pred)
+    rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
+    mae = np.mean(np.abs(ys_val-ys_pred))
+    pearson = np.cov((ys_val, ys_pred))[1,0]/(
+                      ys_val.std()*ys_pred.std())
+    
+    return me, rmse, mae, pearson
+
+def print_results(results, rowname):
+#    header = '\tME_{0} \t\tRMSE_{0} \t\tMAE_{0} \t\tPearson_{0}'
+    header = '\tME \t\tRMSE \t\tMAE \t\tPearson'
+    print(header)
+    l = '{} \t'.format(rowname)
+    for e in results:
+#            v = results[e,fold,t]
+        l +='{:f} \t'.format(e)
+    print(l)
