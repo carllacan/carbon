@@ -61,8 +61,6 @@ def load_runs(filename):
                         runs[-1][param].append(int(e))
             else:
                 runs[-1][param] = value
-
-    # TODO: can I one-line this for?
     return runs
 
 def get_neurons(model):
@@ -104,7 +102,6 @@ def evaluate_model(model, xs_val, ys_val):
         results[t, 3] = pearson
     return results
 
-# TODO: make this function print by target too
 def print_results(results, rowname):
     header = '\tME \t\tRMSE \t\tMAE \t\tPearson'
     print(header)
@@ -112,3 +109,14 @@ def print_results(results, rowname):
     for e in results:
         l +='{:f} \t'.format(e)
     print(l)
+    
+def print_all_results(results, targets):
+    header = '\tME \t\tRMSE \t\tMAE \t\tPearson'
+    print(header)
+    
+    for t, tar in enumerate(targets):
+#        utils.print_results(, rowname)
+        l = 'T{} \t'.format(tar)
+        for e in (0, 1, 2, 3):
+            l +='{:f}, \t'.format(results[t,e])
+        print(l)

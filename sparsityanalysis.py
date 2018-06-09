@@ -19,7 +19,7 @@ xs = utils.normalize_data(xs)
 ys = utils.normalize_data(ys)
 runs = utils.load_runs(runs_filename)
 
-pruning = 15 # prune 10% of neurons
+pruning = 10 # prune 10% of neurons
 
 for r in range(numruns):
     model = load_model(folder + '/run{}.h5'.format(r+1))
@@ -30,11 +30,8 @@ for r in range(numruns):
     xs_val = xs[:,features]
     ys_val = ys[:,targets]
     results = utils.evaluate_model(model, xs_val, ys_val)
-    rowname = "Run {}".format(r)
-    for t, tar in enumerate(targets):
-        print("Target {}".format(tar))
-        utils.print_results(results[t,:], rowname)
-    
+    print("Run {}".format(r))
+    utils.print_all_results(results, targets)
     ns = np.abs( utils.get_neurons(model))
     threshold = np.percentile(ns, pruning)
     layers = model.get_weights()
@@ -59,7 +56,5 @@ for r in range(numruns):
     xs_val = xs[:,features]
     ys_val = ys[:,targets]
     results = utils.evaluate_model(model, xs_val, ys_val)
-    rowname = "Run {}".format(r)
-    for t, tar in enumerate(targets):
-        print("Target {}".format(tar))
-        utils.print_results(results[t,:], rowname)
+    print("Run {}".format(r))
+    utils.print_all_results(results, targets)

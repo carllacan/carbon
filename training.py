@@ -120,12 +120,8 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Print results
     
     print('\n Run {}/{} results \n'.format(r+1, len(runs)))
-    for t, tar in enumerate(targets):
-        print("Target {}".format(tar))
-        for fold in range(nfolds+1):
-            rowname = 'Fold {}'.format(fold) if fold != nfolds else 'Mean'
-            utils.print_results(results[fold,t,:], rowname)
-      
+    utils.print_all_results(results[fold], targets)
+
     # Log results
         
     delimiter = ','
