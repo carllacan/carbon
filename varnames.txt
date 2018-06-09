@@ -1,0 +1,24 @@
+feature_names = ['PFTIds',
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1.values', #LST day GPP LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values', # LST night GPP LE
+         'MODIS.MCD43A4.MODNDWI.values', #NDWI GPP
+         'MODIS.MOD11A2.MODLST_Day_1km_QA1_MSC.Max', # MSC-day GPP
+         'MODIS.MOD11A2.MODNDVIRg.values', # NDVI times Rg GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_EVI_QA1_MSC.Amp', # EVI GPP
+         'MODIS.MOD13Q1.MOD250m_16_days_MIR_reflectance_QA1_MSC.Amp', # MIR GPP
+         'MODIS.MOD15A2.MODLai_1km_QA1_MSCmatch', # LAI GPP
+         'MODIS.MCD43A4.MODEVILST_MSCmatch', # EVIxLST LE
+         'MODIS.MCD43A4.MODFPARRg_MSC.Max', # fAPARxRg LE
+         'MODIS.MOD11A2.MODEVILST.values_ano', #EVIxLSTday? LE
+         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values_ano', # LST-night yearly?
+         'Rg', # Rg LE
+         'Rpot', # Rpot LE
+         'oriLongTermMeteoData.Rg_all_MSC.Min' # Rg-MSC-min LE
+         ]
+
+target_names = ['GPP',
+                'NEE',
+                'TER',
+                'LE',
+                'Rn',
+                'H']

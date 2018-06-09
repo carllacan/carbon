@@ -4,17 +4,14 @@
 import numpy as np
 #import random
 import utils
+import time
 
-# Fix PRG seed
 np.random.seed(1729)
 
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.regularizers import l2, l1
-
-# TODO: try  normalized values with  biases initialized to zero
-
 
 # Load data
     
@@ -23,31 +20,6 @@ xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=',')
 ys = np.genfromtxt(datafolder + '/dataY.csv', delimiter=',')
 vs =  np.genfromtxt(datafolder + '/inds_crossval.csv') -1
 
-# MSC-day GPP?
-feature_names = ['PFTIds',
-         'MODIS.MOD11A2.MODLST_Day_1km_QA1.values', #LST day GPP LE
-         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values', # LST night GPP LE
-         'MODIS.MCD43A4.MODNDWI.values', #NDWI GPP
-         'MODIS.MOD11A2.MODLST_Day_1km_QA1_MSC.Max', # MSC-day GPP
-         'MODIS.MOD11A2.MODNDVIRg.values', # NDVI times Rg GPP
-         'MODIS.MOD13Q1.MOD250m_16_days_EVI_QA1_MSC.Amp', # EVI GPP
-         'MODIS.MOD13Q1.MOD250m_16_days_MIR_reflectance_QA1_MSC.Amp', # MIR GPP
-         'MODIS.MOD15A2.MODLai_1km_QA1_MSCmatch', # LAI GPP
-         'MODIS.MCD43A4.MODEVILST_MSCmatch', # EVIxLST LE
-         'MODIS.MCD43A4.MODFPARRg_MSC.Max', # fAPARxRg LE
-         'MODIS.MOD11A2.MODEVILST.values_ano', #EVIxLSTday? LE
-         'MODIS.MOD11A2.MODLST_Night_1km_QA1.values_ano', # LST-night yearly?
-         'Rg', # Rg LE
-         'Rpot', # Rpot LE
-         'oriLongTermMeteoData.Rg_all_MSC.Min' # Rg-MSC-min LE
-         ]
-
-target_names = ['GPP',
-                'NEE',
-                'TER',
-                'LE',
-                'Rn',
-                'H']
 
 all_features = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 gpp_features = (1, 2, 3, 4, 5, 6, 7, 8)
@@ -94,7 +66,6 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     epochs = params['epochs']
         
     optimizer = "adam"
-    
     
     results = np.zeros((4, nfolds+1, len(targets)))
     print('')
@@ -154,11 +125,17 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     print('Run {}/{}, final model training'.format(r+1, len(runs)))
     xs_train = xs[:,features]
     ys_train = ys[:,targets]
+    t0 = time.time()
     fit_history = model.fit(xs_train, ys_train, 
                             batch_size = batch_size,
                             epochs = epochs,
                             verbose=1,
                             )
+    train_dt = time.time() - t0
+    t0 = time.time()
+    model.predict(xs_train)
+    test_dt = time.time() - t0
+    
     model.save(folder + '/run{}.h5'.format(r+1))
     
     # Record mean errors
@@ -185,34 +162,19 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         results_file.read()
     except:
         results_file = open(results_filename, 'w')
-#        header = ''
-#        for p in param_names:
-#            header += p + delimiter
-#        for t, tar in enumerate(targets):
-#            for m in  ('ME', 'RMSE', 'MAE', 'Pearson'):
-#                header += '{}_{}'.format(m, tar) + delimiter
-        colnames = 'Run', 'Target', 'ME', 'RMSE', 'MAE', 'Pearson'
+        colnames = ('Run', 'Target', 'ME', 'RMSE', 'MAE', 
+                    'Pearson', 'Train time', 'Test time')
         header = delimiter.join(colnames)
         results_file.write(header + '\n')
         
-#    row = ''
-#    for p in param_names:
-#        v = params[p]
-#        if type(v) == tuple:
-#            v = str(v)
-#            v = v.replace(' ', '')
-#            v = v.replace('(', '')
-#            v = v.replace(')', '')
-#            v = v.replace(',', '-')
-#        else:
-#            v = str(v)
-#        row += v + delimiter
+
         
     for t, tar in enumerate(targets):
         row = '{},{},'.format(r, tar)
         for m in (0,1,2):
             v = np.mean(results[m,:,t])
-            row +='{:f}'.format(v) + delimiter
+            row +='{:.5f},'.format(v) + delimiter
+        row += '{:.4f},{:.4f}'.format(train_dt, test_dt)
         # can I one-line this?
         
         results_file.write(row + '\n')
