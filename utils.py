@@ -87,8 +87,8 @@ def weight_hist(model):
     plt.show()
 
 def evaluate_model(model, xs_val, ys_val):
-    ys_pred = model.predict(xs_val)
     num_targets = model.output_shape[1]
+    ys_pred = model.predict(xs_val)
     results = np.zeros((num_targets, 4))
     for t in range(num_targets):            
         ys_val_t = ys_val[:,t]
@@ -104,6 +104,7 @@ def evaluate_model(model, xs_val, ys_val):
         results[t, 3] = pearson
     return results
 
+# TODO: make this function print by target too
 def print_results(results, rowname):
     header = '\tME \t\tRMSE \t\tMAE \t\tPearson'
     print(header)

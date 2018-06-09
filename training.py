@@ -13,16 +13,16 @@ from keras.layers import Dense
 from keras.layers import Dropout
 from keras.regularizers import l2, l1
 
-
 datafolder = 'data'
 resultsfolder = 'results/results_test'
 start_at = 3
 
-# Load data
+# Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
+xs = utils.normalize_data(xs)
+ys = utils.normalize_data(ys)
 
-# Set folder
-
+# Set filenames
 runs_filename = resultsfolder + '/runs.csv'
 results_filename = resultsfolder + '/results.csv'
 
@@ -30,10 +30,6 @@ results_filename = resultsfolder + '/results.csv'
 runs = utils.load_runs(runs_filename)
 
 nfolds = 1#np.unique(vs).size
-    
-# Normalization of training data
-xs = utils.normalize_data(xs)
-ys = utils.normalize_data(ys)
     
 for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Network architecture
@@ -58,7 +54,6 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     print('')
     for fold in range(0, nfolds):
         # Model creation
-        
         model = Sequential()
         model.add(Dense(hidden_layers[0], 
                         input_dim = input_dim, 
@@ -84,7 +79,6 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
                       metrics=[])
         
         # Training
-        
         xs_train = xs[vs != fold,:][:,features]
         xs_val = xs[vs == fold,:][:,features] 
         ys_train = ys[vs != fold,:][:,targets]
@@ -98,9 +92,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
                                 )
         
         # Validation
-
         results[fold] = utils.evaluate_model(model, xs_val, ys_val)
-
             
     # Train and save final model
     print('Run {}/{}, final model training'.format(r+1, len(runs)))
