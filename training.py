@@ -13,24 +13,18 @@ from keras.layers import Dense
 from keras.layers import Dropout
 from keras.regularizers import l2, l1
 
-# Load data
-    
+
 datafolder = 'data'
-xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=',')
-ys = np.genfromtxt(datafolder + '/dataY.csv', delimiter=',')
-vs =  np.genfromtxt(datafolder + '/inds_crossval.csv') -1
+resultsfolder = 'results/results_test'
+start_at = 3
 
-
-all_features = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
-gpp_features = (1, 2, 3, 4, 5, 6, 7, 8)
-le_features = (1, 2, 9, 10, 11, 13, 14, 15)
+# Load data
+xs, ys, vs = utils.load_data(datafolder)
 
 # Set folder
-folder = 'results/results_test'
-start_at = 1
 
-runs_filename = folder + '/runs.csv'
-results_filename = folder + '/results.csv'
+runs_filename = resultsfolder + '/runs.csv'
+results_filename = resultsfolder + '/results.csv'
 
 # Load the parameters of the runs
 runs = utils.load_runs(runs_filename)
@@ -38,15 +32,8 @@ runs = utils.load_runs(runs_filename)
 nfolds = 1#np.unique(vs).size
     
 # Normalization of training data
-    
-for i in range(16):
-    xs[:,i] -= np.mean(xs[:,i])
-    xs[:,i] /= np.std(xs[:,i])
-    
-    
-for i in range(6):
-    ys[:,i] -= np.mean(ys[:,i])
-#    ys[:,i] /= np.std(ys[:,i])
+xs = utils.normalize_data(xs)
+ys = utils.normalize_data(ys)
     
 for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     # Network architecture
@@ -67,7 +54,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         
     optimizer = "adam"
     
-    results = np.zeros((4, nfolds+1, len(targets)))
+    results = np.zeros((nfolds+1, len(targets), 4))
     print('')
     for fold in range(0, nfolds):
         # Model creation
@@ -111,14 +98,9 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
                                 )
         
         # Validation
-        
-        ys_pred = model.predict(xs_val)
-        for t, tar in enumerate(targets):            
-            me, rmse, mae, p = utils.evaluate_model(ys_val[:,t], ys_pred[:,t])
-            results[0, fold, t] = me
-            results[1, fold, t] = rmse
-            results[2, fold, t] = mae
-            results[3, fold, t] = p
+
+        results[fold] = utils.evaluate_model(model, xs_val, ys_val)
+
             
     # Train and save final model
     print('Run {}/{}, final model training'.format(r+1, len(runs)))
@@ -135,13 +117,13 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     model.predict(xs_train)
     test_dt = time.time() - t0
     
-    model.save(folder + '/run{}.h5'.format(r+1))
+    model.save(resultsfolder + '/run{}.h5'.format(r+1))
     
     # Record mean errors
     
     for t, tar in enumerate(targets):
         for e in range(4):
-            results[e,nfolds,t] = np.mean(results[e,:-1,t])
+            results[nfolds,t,e] = np.mean(results[:-1,t,e])
         
     # Print results
     
@@ -150,7 +132,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         print("Target {}".format(tar))
         for fold in range(nfolds+1):
             rowname = 'Fold {}'.format(fold) if fold != nfolds else 'Mean'
-            utils.print_results(results[:,fold,t], rowname)
+            utils.print_results(results[fold,t,:], rowname)
       
     # Log results
         
@@ -167,7 +149,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         
     temp = '{},{},{r[0]:.5f},{r[1]:.5f},{r[2]:.5f},{r[3]:.5f},{:.4f},{:.4f}'
     for t, tar in enumerate(targets):
-        row = temp.format(r, tar, train_dt, test_dt, r=results[:,-1,t])
+        row = temp.format(r, tar, train_dt, test_dt, r=results[-1,t,:])
         
         results_file.write(row + '\n')
     

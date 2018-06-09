@@ -24,6 +24,19 @@ from keras.callbacks import Callback
 #        plt.plot(es, acs)
 #        plt.show()
 
+def load_data(datafolder):
+    delimiter=','
+    xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=delimiter)
+    ys = np.genfromtxt(datafolder + '/dataY.csv', delimiter=delimiter)
+    vs =  np.genfromtxt(datafolder + '/inds_crossval.csv') - 1
+    return xs, ys, vs
+
+def normalize_data(ds):
+    for i in range(6):
+        ds[:,i] -= np.mean(ds[:,i])
+        ds[:,i] /= np.std(ds[:,i])
+    return ds
+
 def load_runs(filename):
     delimiter = ','
     int_params = ('batch_size', 'epochs')
@@ -72,23 +85,29 @@ def weight_hist(model):
     plt.figure()
     plt.hist(ws, bins=100)
     plt.show()
-    
-def evaluate_model(ys_val, ys_pred):
-    
-    me = np.mean(ys_val-ys_pred)
-    rmse = np.sqrt(np.mean((ys_val-ys_pred)**2))
-    mae = np.mean(np.abs(ys_val-ys_pred))
-    pearson = np.cov((ys_val, ys_pred))[1,0]/(
-                      ys_val.std()*ys_pred.std())
-    
-    return me, rmse, mae, pearson
+
+def evaluate_model(model, xs_val, ys_val):
+    ys_pred = model.predict(xs_val)
+    num_targets = model.output_shape[1]
+    results = np.zeros((num_targets, 4))
+    for t in range(num_targets):            
+        ys_val_t = ys_val[:,t]
+        ys_pred_t = ys_pred[:,t]
+        me = np.mean(ys_val_t-ys_pred_t)
+        rmse = np.sqrt(np.mean((ys_val_t-ys_pred_t)**2))
+        mae = np.mean(np.abs(ys_val_t-ys_pred_t))
+        pearson = np.cov((ys_val_t, ys_pred_t))[1,0]/(
+                          ys_val_t.std()*ys_pred_t.std())
+        results[t, 0] = me
+        results[t, 1] = rmse
+        results[t, 2] = mae
+        results[t, 3] = pearson
+    return results
 
 def print_results(results, rowname):
-#    header = '\tME_{0} \t\tRMSE_{0} \t\tMAE_{0} \t\tPearson_{0}'
     header = '\tME \t\tRMSE \t\tMAE \t\tPearson'
     print(header)
     l = '{} \t'.format(rowname)
     for e in results:
-#            v = results[e,fold,t]
         l +='{:f} \t'.format(e)
     print(l)
