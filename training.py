@@ -39,12 +39,12 @@ nfolds = 1#np.unique(vs).size
     
 # Normalization of training data
     
-for i in range(0, len(feature_names)):
+for i in range(16):
     xs[:,i] -= np.mean(xs[:,i])
     xs[:,i] /= np.std(xs[:,i])
     
     
-for i in range(0, len(target_names)):
+for i in range(6):
     ys[:,i] -= np.mean(ys[:,i])
 #    ys[:,i] /= np.std(ys[:,i])
     
@@ -70,7 +70,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     results = np.zeros((4, nfolds+1, len(targets)))
     print('')
     for fold in range(0, nfolds):
-        # Model definition
+        # Model creation
         
         model = Sequential()
         model.add(Dense(hidden_layers[0], 
@@ -103,7 +103,6 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         ys_train = ys[vs != fold,:][:,targets]
         ys_val = ys[vs == fold,:][:,targets]
 
-        
         print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold, nfolds))
         fit_history = model.fit(xs_train, ys_train, 
                                 batch_size = batch_size,
@@ -139,6 +138,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     model.save(folder + '/run{}.h5'.format(r+1))
     
     # Record mean errors
+    
     for t, tar in enumerate(targets):
         for e in range(4):
             results[e,nfolds,t] = np.mean(results[e,:-1,t])
@@ -154,9 +154,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
       
     # Log results
         
-    param_names = params.keys()
     delimiter = ','
-    
     try:
         results_file = open(results_filename, 'r+')
         results_file.read()
@@ -167,15 +165,9 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         header = delimiter.join(colnames)
         results_file.write(header + '\n')
         
-
-        
+    temp = '{},{},{r[0]:.5f},{r[1]:.5f},{r[2]:.5f},{r[3]:.5f},{:.4f},{:.4f}'
     for t, tar in enumerate(targets):
-        row = '{},{},'.format(r, tar)
-        for m in (0,1,2):
-            v = np.mean(results[m,:,t])
-            row +='{:.5f},'.format(v) + delimiter
-        row += '{:.4f},{:.4f}'.format(train_dt, test_dt)
-        # can I one-line this?
+        row = temp.format(r, tar, train_dt, test_dt, r=results[:,-1,t])
         
         results_file.write(row + '\n')
     
