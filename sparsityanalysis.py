@@ -6,12 +6,11 @@ from keras.models import load_model
 import utils 
 
 datafolder = 'data'
-resultsfolder = 'results/results_test'
+resultsfolder = 'results/results1'
 
 runs_filename = resultsfolder + '/runs.csv'
 results_filename = resultsfolder + '/results.csv'
 
-folder = 'results/results_test'
 numruns = 3
 
 xs, ys, _ = utils.load_data(datafolder)
@@ -22,7 +21,7 @@ runs = utils.load_runs(runs_filename)
 pruning = 10 # prune 10% of neurons
 
 for r in range(numruns):
-    model = load_model(folder + '/run{}.h5'.format(r+1))
+    model = load_model(resultsfolder + '/run{}.h5'.format(r+1))
     utils.weight_hist(model)
     
     features = runs[r]['features']

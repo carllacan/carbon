@@ -14,8 +14,8 @@ from keras.layers import Dropout
 from keras.regularizers import l2, l1
 
 datafolder = 'data'
-resultsfolder = 'results/results_test'
-start_at = 3
+resultsfolder = 'results/results1'
+start_at = 41
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -84,12 +84,12 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         ys_train = ys[vs != fold,:][:,targets]
         ys_val = ys[vs == fold,:][:,targets]
 
-        print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold, nfolds))
-        fit_history = model.fit(xs_train, ys_train, 
-                                batch_size = batch_size,
-                                epochs = epochs,
-                                verbose=1,
-                                )
+        print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold+1, nfolds))
+        model.fit(xs_train, ys_train, 
+                  batch_size = batch_size,
+                  epochs = epochs,
+                  verbose=1,
+                  )
         
         # Validation
         results[fold] = utils.evaluate_model(model, xs_val, ys_val)
@@ -99,11 +99,11 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     xs_train = xs[:,features]
     ys_train = ys[:,targets]
     t0 = time.time()
-    fit_history = model.fit(xs_train, ys_train, 
-                            batch_size = batch_size,
-                            epochs = epochs,
-                            verbose=1,
-                            )
+    model.fit(xs_train, ys_train, 
+              batch_size = batch_size,
+              epochs = epochs,
+              verbose=1,
+              )
     train_dt = time.time() - t0
     t0 = time.time()
     model.predict(xs_train)
@@ -142,3 +142,9 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         results_file.write(row + '\n')
     
     results_file.close()
+    del(model)
+    del(xs_train)
+    del(xs_val)
+    del(ys_train)
+    del(ys_val)
+

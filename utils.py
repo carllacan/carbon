@@ -19,12 +19,8 @@ def normalize_data(ds):
 
 def load_runs(filename):
     delimiter = '\t'
-#    int_params = ('batch_size', 'epochs')
-#    float_params = ('dropout', 'reg_v')
-#    list_params = ('features','targets','hidden_layers')
     f = open(filename, 'r')
     lines = f.readlines()
-#    colnames = lines[0].strip('\n').split(delimiter)
     runs = []
     for l in lines[1:]:
         values = l.strip('\n').replace(',','.').split(delimiter)
@@ -38,18 +34,7 @@ def load_runs(filename):
         params['batch_size'] = int(values[6])
         params['epochs'] = int(values[7])
         runs.append(params)
-#        for param, value in zip(colnames, values):
-#            if param in int_params:
-#                runs[-1][param] = int(value)
-#            elif param in float_params:
-#                runs[-1][param] = float(value)
-#            elif param in list_params:
-#                runs[-1][param] = []
-#                for e in value.split('-'):
-#                    if e != '':
-#                        runs[-1][param].append(int(e))
-#            else:
-#                runs[-1][param] = value
+
     return runs
 
 def get_neurons(model):
