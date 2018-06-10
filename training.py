@@ -12,10 +12,11 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.regularizers import l2, l1
+from keras import backend as K
 
 datafolder = 'data'
 resultsfolder = 'results/results1'
-start_at = 41
+start_at = 45
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -147,4 +148,5 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     del(xs_val)
     del(ys_train)
     del(ys_val)
+    K.clear_session()
 
