@@ -16,7 +16,7 @@ from keras import backend as K
 
 datafolder = 'data'
 resultsfolder = 'results/results1'
-start_at = 45
+start_at = 52
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -94,9 +94,40 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         
         # Validation
         results[fold] = utils.evaluate_model(model, xs_val, ys_val)
+
+        del(model)
+        K.clear_session()
+    
             
     # Train and save final model
     print('Run {}/{}, final model training'.format(r+1, len(runs)))
+
+    # TODO: make a create_model function, or make it so that this code doesn't get repeated
+
+    model = Sequential()
+    model.add(Dense(hidden_layers[0], 
+                    input_dim = input_dim, 
+                    bias_initializer="zeros", 
+                    kernel_initializer="normal", 
+                    activation='linear', 
+                    kernel_regularizer=reg))
+    for neurons in hidden_layers[1:]:
+        model.add(Dense(neurons, 
+                        bias_initializer="zeros", 
+                        kernel_initializer="normal", 
+                        activation='linear', 
+                        kernel_regularizer=reg))
+        model.add(Dropout(params['dropout']))  
+    model.add(Dense(output_dim, 
+                    bias_initializer="zeros", 
+                    kernel_initializer="normal", 
+                    activation='linear',
+                    kernel_regularizer=reg))
+                                
+    model.compile(loss='mse', 
+                  optimizer=optimizer, 
+                  metrics=[])
+
     xs_train = xs[:,features]
     ys_train = ys[:,targets]
     t0 = time.time()
@@ -112,6 +143,9 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     
     model.save(resultsfolder + '/run{}.h5'.format(r+1))
     
+    del(model)
+    K.clear_session()
+
     # Record mean errors
     
     for t, tar in enumerate(targets):
@@ -143,10 +177,4 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         results_file.write(row + '\n')
     
     results_file.close()
-    del(model)
-    del(xs_train)
-    del(xs_val)
-    del(ys_train)
-    del(ys_val)
-    K.clear_session()
 
