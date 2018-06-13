@@ -16,7 +16,7 @@ from keras import backend as K
 
 datafolder = 'data'
 resultsfolder = 'results/results1'
-start_at = 52
+start_at = 87
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)

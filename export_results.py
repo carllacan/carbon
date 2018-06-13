@@ -3,8 +3,9 @@
 #import os
 #from jinja2 import Template
 
-runs = (0, 1, 2, 3, 4, 5, 6, 7, 8) # runs to be exported
-resultsfolder = 'results/results_test'
+runs = (4,16,27,36,51,63,75,87,99) # runs to be exported
+#runs = (10,22,35,46,57,70,82,94,99) # runs to be exported
+resultsfolder = 'results/results1'
 results_filename = resultsfolder + '/results.csv'
 delimiter = ','
 colignore = 11
@@ -16,12 +17,12 @@ results = []
 lines = f.readlines()[1:]
 for l in lines:
     values = l.strip('\n').split(delimiter)
-    if values[0] in runs:
+    if int(values[0]) in runs:
         errors = values[2:-2]
         results.append(errors)
          
 t = open('templates/tabletemp.tex')
-dest = open(resultsfolder + 'result_summary.tex', 'w')
+dest = open(resultsfolder + '/result_summary_denorm_bestfeatures.tex', 'w')
 
 i = 0
 for l in t.readlines():
@@ -29,7 +30,7 @@ for l in t.readlines():
     if '%VAR' in l:
         for j in range(l.count('%VAR')):
             error = results[i][j]
-            stringed = '{:f}'.format(error)
+            stringed = '{:f}'.format(float(error))
             line = line.replace('%VAR', stringed)
         i += 1
     dest.write(line + '\n')
