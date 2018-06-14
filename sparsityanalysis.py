@@ -11,7 +11,7 @@ resultsfolder = 'results/results1'
 runs_filename = resultsfolder + '/runs.csv'
 results_filename = resultsfolder + '/results.csv'
 
-numruns = 3
+runlist = (4,16,27,36,51,63,75,87,99)
 
 xs, ys, _ = utils.load_data(datafolder)
 xs = utils.normalize_data(xs)
@@ -20,7 +20,7 @@ runs = utils.load_runs(runs_filename)
 
 pruning = 10 # prune 10% of neurons
 
-for r in range(numruns):
+for r in runlist:
     model = load_model(resultsfolder + '/run{}.h5'.format(r+1))
     utils.weight_hist(model)
     
@@ -49,10 +49,16 @@ for r in range(numruns):
                     if np.abs(w) <= threshold:
                         layers[i][j][k] = 0
                         p += 1
-    print("{:2.2f}% neurons prunned".format(100*p/len(ns)))
     model.set_weights(layers)
-    utils.weight_hist(model)
+#    utils.weight_hist(model)
     
     results = utils.evaluate_model(model, xs_val, ys_val)
-    print("\nRun {}".format(r))
+    print("\nRun {}, {:2.2f}% neurons prunned".format(r, 100*p/len(ns)))
     utils.print_all_results(results, targets)
+    
+    # TODO: save prunning results. TODO: export_model function
+    
+    # TODO: what's more important, the neurons or the weights? 
+    # I could try calculating the average or rms weight of the incoming 
+    # connections to each neuron to find out how important it is, and then
+    # redefine the model without those neurons that are not important.

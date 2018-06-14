@@ -15,8 +15,9 @@ from keras.regularizers import l2, l1
 from keras import backend as K
 
 datafolder = 'data'
-resultsfolder = 'results/results1'
+resultsfolder = 'results/results_repeat1'
 start_at = 87
+run_only = (4,16,27,36,51,63,75,87,99)
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -33,6 +34,11 @@ runs = utils.load_runs(runs_filename)
 nfolds = np.unique(vs).size
     
 for r, params in enumerate(runs[start_at-1:], start=start_at-1):
+    
+    # hacky shortcut to repeat important runs
+    if not r in run_only:
+        continue
+    
     # Network architecture
     features = params['features']
     targets = params['targets']
