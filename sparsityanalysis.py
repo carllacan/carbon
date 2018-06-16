@@ -12,6 +12,7 @@ runs_filename = resultsfolder + '/runs.csv'
 results_filename = resultsfolder + '/results.csv'
 
 runlist = (4,16,27,36,51,63,75,87,99)
+runlist = (10,22,35,46,57,70,82,94,99)
 
 xs, ys, _ = utils.load_data(datafolder)
 xs = utils.normalize_data(xs)
@@ -42,21 +43,25 @@ for r in runlist:
         for j, ws in enumerate(l):
             if type(ws) is np.float32:
                 if np.abs(ws) <= threshold:
-                    layers[i][j] = 0
+                    layers[i][j] = 0.0
                     p += 1
             else:
                 for k, w in enumerate(ws):
                     if np.abs(w) <= threshold:
-                        layers[i][j][k] = 0
+                        layers[i][j][k] = 0.0
                         p += 1
     model.set_weights(layers)
-#    utils.weight_hist(model)
     
     results = utils.evaluate_model(model, xs_val, ys_val)
     print("\nRun {}, {:2.2f}% neurons prunned".format(r, 100*p/len(ns)))
     utils.print_all_results(results, targets)
+    utils.weight_hist(model)
+    
+    
     
     # TODO: save prunning results. TODO: export_model function
+    
+    # TODO: performance vs prunning level plot for each model?
     
     # TODO: what's more important, the neurons or the weights? 
     # I could try calculating the average or rms weight of the incoming 
