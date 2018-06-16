@@ -15,14 +15,14 @@ from keras.regularizers import l2, l1
 from keras import backend as K
 
 datafolder = 'data'
-resultsfolder = 'results/results_repeat1'
-start_at = 87
-run_only = (4,16,27,36,51,63,75,87,99)
+resultsfolder = 'results/results1_repeat'
+start_at = 1
+#run_only = (4,16,27,36,51,63,75,87,99)
+run_only= range(120)
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
-xs = utils.normalize_data(xs)
-ys = utils.normalize_data(ys)
+xs, ys = utils.normalize_data(xs, ys)
 
 # Set filenames
 runs_filename = resultsfolder + '/runs.csv'

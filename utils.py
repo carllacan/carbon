@@ -11,11 +11,21 @@ def load_data(datafolder):
     vs =  np.genfromtxt(datafolder + '/inds_crossval.csv') - 1
     return xs, ys, vs
 
-def normalize_data(ds):
-    for i in range(6):
-        ds[:,i] -= np.mean(ds[:,i])
-        ds[:,i] /= np.std(ds[:,i])
-    return ds
+def normalize_data(xs, ys):
+    for i in range(xs.shape[1]):
+        xs[:,i] -= np.mean(xs[:,i])
+        xs[:,i] /= np.std(xs[:,i])
+    for i in range(ys.shape[1]):
+        ys[:,i] -= np.mean(ys[:,i])
+#        ys[:,i] /= np.std(ys[:,i])
+    return xs, ys
+
+
+#def normalize_data(xs): # has a bug, will delete when re-training
+#    for i in range(6):
+#        xs[:,i] -= np.mean(xs[:,i])
+#        xs[:,i] /= np.std(xs[:,i])
+#    return xs
 
 def load_runs(filename):
     delimiter = '\t'
@@ -37,20 +47,24 @@ def load_runs(filename):
 
     return runs
 
-def get_neurons(model):
+def get_neurons(model, remove_zeros = True):
     weights = []
     layers = model.get_weights()
     for i, l in enumerate(layers):
         for j, ws in enumerate(l):
             if type(ws) is np.float32:
-                weights.append(layers[i][j])
+                w = layers[i][j]
+                if w != 0.0 or (w == 0.0 and not remove_zeros):
+                    weights.append(w)
             else:
                 for k, w in enumerate(ws):
-                    weights.append(layers[i][j][k])
+                    w = layers[i][j][k]
+                    if w != 0.0 or (w == 0.0 and not remove_zeros):
+                        weights.append(w)
     return weights
                     
-def weight_hist(model):
-    ws = get_neurons(model)
+def weight_hist(model, remove_zeros = True):
+    ws = get_neurons(model, remove_zeros)
     plt.figure()
     plt.hist(ws, bins=100)
     plt.show()
