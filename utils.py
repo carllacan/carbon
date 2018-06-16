@@ -76,16 +76,17 @@ def evaluate_model(model, xs_val, ys_val):
     for t in range(num_targets):            
         ys_val_t = ys_val[:,t]
         ys_pred_t = ys_pred[:,t]
-        me = np.mean(ys_val_t-ys_pred_t)
-        rmse = np.sqrt(np.mean((ys_val_t-ys_pred_t)**2))
-        mae = np.mean(np.abs(ys_val_t-ys_pred_t))
+        residuals = ys_val_t-ys_pred_t
+        me = np.mean(residuals)
+        rmse = np.sqrt(np.mean(residuals**2))
+        mae = np.mean(np.abs(residuals))
         pearson = np.cov((ys_val_t, ys_pred_t))[1,0]/(
                           ys_val_t.std()*ys_pred_t.std())
         results[t, 0] = me
         results[t, 1] = rmse
         results[t, 2] = mae
         results[t, 3] = pearson
-    return results
+    return results, residuals
 
 def print_results(results, rowname):
     header = '\tME \t\tRMSE \t\tMAE \t\tPearson'

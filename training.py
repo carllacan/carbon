@@ -16,9 +16,9 @@ from keras import backend as K
 
 datafolder = 'data'
 resultsfolder = 'results/results1_repeat'
-start_at = 1
+start_at = 21
 #run_only = (4,16,27,36,51,63,75,87,99)
-run_only= range(120)
+run_only=  (24,)
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -36,7 +36,7 @@ nfolds = np.unique(vs).size
 for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     
     # hacky shortcut to repeat important runs
-    if not r in run_only:
+    if not r+1 in run_only:
         continue
     
     # Network architecture
@@ -99,7 +99,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
                   )
         
         # Validation
-        results[fold] = utils.evaluate_model(model, xs_val, ys_val)
+        results[fold], _ = utils.evaluate_model(model, xs_val, ys_val)
 
         del(model)
         K.clear_session()

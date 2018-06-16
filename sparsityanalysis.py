@@ -30,7 +30,7 @@ for r in runlist:
     xs_val = xs[:,features]
     ys_val = ys[:,targets]
     
-    results = utils.evaluate_model(model, xs_val, ys_val)
+    results, _ = utils.evaluate_model(model, xs_val, ys_val)
     print("\nRun {}".format(r))
     utils.print_all_results(results, targets)
     
@@ -52,7 +52,7 @@ for r in runlist:
                         p += 1
     model.set_weights(layers)
     
-    results = utils.evaluate_model(model, xs_val, ys_val)
+    results, _ = utils.evaluate_model(model, xs_val, ys_val)
     print("\nRun {}, {:2.2f}% neurons prunned".format(r, 100*p/len(ns)))
     utils.print_all_results(results, targets)
     utils.weight_hist(model)
@@ -67,3 +67,6 @@ for r in runlist:
     # I could try calculating the average or rms weight of the incoming 
     # connections to each neuron to find out how important it is, and then
     # redefine the model without those neurons that are not important.
+    
+    # TODO: prun until 16-feature models are comparatively big to 8-feature
+    # models, and compare performances.
