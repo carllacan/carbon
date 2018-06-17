@@ -17,7 +17,7 @@ def normalize_data(xs, ys):
         xs[:,i] /= np.std(xs[:,i])
     for i in range(ys.shape[1]):
         ys[:,i] -= np.mean(ys[:,i])
-#        ys[:,i] /= np.std(ys[:,i])
+        ys[:,i] /= np.std(ys[:,i])
     return xs, ys
 
 
@@ -82,6 +82,7 @@ def evaluate_model(model, xs_val, ys_val):
         mae = np.mean(np.abs(residuals))
         pearson = np.cov((ys_val_t, ys_pred_t))[1,0]/(
                           ys_val_t.std()*ys_pred_t.std())
+        # TODO: consider np.corrcoef
         results[t, 0] = me
         results[t, 1] = rmse
         results[t, 2] = mae
