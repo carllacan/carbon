@@ -15,10 +15,10 @@ from keras.regularizers import l2, l1
 from keras import backend as K
 
 datafolder = 'data'
-resultsfolder = 'results/results1_repeat'
+resultsfolder = 'results/results1_repeat_with_norm_targets'
 start_at = 21
 #run_only = (4,16,27,36,51,63,75,87,99)
-run_only=  (24,)
+run_only= range(150) # run all
 
 # Load and normalize data
 xs, ys, vs = utils.load_data(datafolder)
@@ -33,10 +33,10 @@ runs = utils.load_runs(runs_filename)
 
 nfolds = np.unique(vs).size
     
-for r, params in enumerate(runs[start_at-1:], start=start_at-1):
+for r, params in enumerate(runs[start_at-1:], start=start_at):
     
     # hacky shortcut to repeat important runs
-    if not r+1 in run_only:
+    if not r in run_only:
         continue
     
     # Network architecture
@@ -91,7 +91,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         ys_train = ys[vs != fold,:][:,targets]
         ys_val = ys[vs == fold,:][:,targets]
 
-        print('Run {}/{}, split {}/{}'.format(r+1, len(runs), fold+1, nfolds))
+        print('Run {}/{}, split {}/{}'.format(r, len(runs), fold+1, nfolds))
         model.fit(xs_train, ys_train, 
                   batch_size = batch_size,
                   epochs = epochs,
@@ -106,7 +106,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     
             
     # Train and save final model
-    print('Run {}/{}, final model training'.format(r+1, len(runs)))
+    print('Run {}/{}, final model training'.format(r, len(runs)))
 
     # TODO: make a create_model function, or make it so that this code doesn't get repeated
 
@@ -147,7 +147,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
     model.predict(xs_train)
     test_dt = time.time() - t0
     
-    model.save(resultsfolder + '/run{}.h5'.format(r+1))
+    model.save(resultsfolder + '/run{}.h5'.format(r))
     
     del(model)
     K.clear_session()
@@ -160,8 +160,8 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         
     # Print results
     
-    print('\n Run {}/{} results \n'.format(r+1, len(runs)))
-    utils.print_all_results(results[fold], targets)
+    print('\n Run {}/{} results \n'.format(r, len(runs)))
+    utils.print_all_results(results[nfolds], targets)
 
     # Log results
         
@@ -178,7 +178,7 @@ for r, params in enumerate(runs[start_at-1:], start=start_at-1):
         
     temp = '{},{},{r[0]:.5f},{r[1]:.5f},{r[2]:.5f},{r[3]:.5f},{:.4f},{:.4f}'
     for t, tar in enumerate(targets):
-        row = temp.format(r, tar, train_dt, test_dt, r=results[-1,t,:])
+        row = temp.format(r, tar, train_dt, test_dt, r=results[nfolds,t,:])
         
         results_file.write(row + '\n')
     
