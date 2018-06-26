@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-target_folder = 'results/results1'
+target_folder = 'results/results1_repeat'
 origin = 'results.csv'
 dest = 'results_denorm.csv'
 
@@ -30,7 +30,7 @@ for l in origin_file.readlines()[1:]:
                        vs[7]))
 #    print(l)
 #    print(w)
-    dest_file.write(w + '\n')
+    dest_file.write(w)
     
     
 

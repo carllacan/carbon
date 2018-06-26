@@ -15,8 +15,8 @@ from keras.regularizers import l2, l1
 from keras import backend as K
 
 datafolder = 'data'
-resultsfolder = 'results/results1_repeat_with_norm_targets'
-start_at = 21
+resultsfolder = 'results/results2'
+start_at = 1
 #run_only = (4,16,27,36,51,63,75,87,99)
 run_only= range(150) # run all
 

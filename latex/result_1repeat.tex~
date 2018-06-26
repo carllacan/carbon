@@ -1,0 +1,66 @@
+\begin{table}[htbp]
+
+\caption{Single and multiple output model results.}
+
+\begin{center}
+
+  \begin{tabular}{|l|l|l|r|r|r|r|}
+
+    \hline
+
+    Inputs & Outputs & Target & \multicolumn{1}{l|}{ME} & \multicolumn{1}{l|}{RMSE} & \multicolumn{1}{l|}{MAE} & \multicolumn{1}{l|}{$\rho$} & \multicolumn{1}{l|}{Training time (s)} & \multicolumn{1}{l|}{Test time (s)} \\ \hline
+
+    Carbon features & GPP & GPP & -0.006 & -0.006 & -0.006 & -0.006 & -0.006 & -0.006 \\ \hline
+
+    Carbon features & NEE  & NEE & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\ \hline
+
+    Carbon features & TER  & TER & 0.002 & 0.002 & 0.002 & 0.002 & 0.002 & 0.002 \\ \hline
+
+    Energy features & LE  & LE & -0.010 & -0.010 & -0.010 & -0.010 & -0.010 & -0.010 \\ \hline
+
+    Energy features & Rn  & Rn & 0.016 & 0.016 & 0.016 & 0.016 & 0.016 & 0.016 \\ \hline
+
+    Energy features & H   & H & 0.032 & 0.032 & 0.032 & 0.032 & 0.032 & 0.032 \\ \hline
+
+    \multicolumn{ 1}{|c|}{} & \multicolumn{ 1}{c|}{} & GPP & 0.013 & 0.013 & 0.013 & 0.013 & 0.013 & 0.013 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{Carbon features} & \multicolumn{ 1}{l|}{GPP , NEE, and TER} & NEE & -0.010 & -0.010 & -0.010 & -0.010 & -0.010 & -0.010 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{} & \multicolumn{ 1}{l|}{} & TER & 0.005 & 0.005 & 0.005 & 0.005 & 0.005 & 0.005 \\ \hline
+
+    \multicolumn{ 1}{|c|}{} & \multicolumn{ 1}{c|}{} & LE & 0.038 & 0.038 & 0.038 & 0.038 & 0.038 & 0.038 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{Energy features} & \multicolumn{ 1}{l|}{LE, Rn and H} &  Rn & 0.049 & 0.049 & 0.049 & 0.049 & 0.049 & 0.049 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{} & \multicolumn{ 1}{l|}{} &  H & 0.017 & 0.017 & 0.017 & 0.017 & 0.017 & 0.017 \\ \hline
+
+    \multicolumn{ 1}{|c|}{} & \multicolumn{ 1}{c|}{} & GPP& 0.009 & 0.009 & 0.009 & 0.009 & 0.009 & 0.009 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|c|}{} & \multicolumn{ 1}{l|}{} & NEE & 0.002 & 0.002 & 0.002 & 0.002 & 0.002 & 0.002 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|c|}{All} & \multicolumn{ 1}{c|}{All} & TER & 0.012 & 0.012 & 0.012 & 0.012 & 0.012 & 0.012 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|c|}{features} & \multicolumn{ 1}{c|}{targets} & LE & 0.009 & 0.009 & 0.009 & 0.009 & 0.009 & 0.009 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{} & \multicolumn{ 1}{l|}{} & Rn & 0.025 & 0.025 & 0.025 & 0.025 & 0.025 & 0.025 \\ \cline{ 3- 6}
+
+    \multicolumn{ 1}{|l|}{} & \multicolumn{ 1}{l|}{} & H & 0.017 & 0.017 & 0.017 & 0.017 & 0.017 & 0.017 \\ \hline
+
+\end{tabular}
+
+\end{center}
+
+\label{results}
+
+\end{table}
+
+
+
+%%% Local Variables:
+
+%%% mode: latex
+
+%%% TeX-master: t
+
+%%% End:
+

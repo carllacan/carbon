@@ -4,6 +4,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+from sklearn.neighbors import KernelDensity
+
 def load_data(datafolder):
     delimiter=','
     xs = np.genfromtxt(datafolder + '/dataX.csv', delimiter=delimiter)
@@ -17,7 +19,7 @@ def normalize_data(xs, ys):
         xs[:,i] /= np.std(xs[:,i])
     for i in range(ys.shape[1]):
         ys[:,i] -= np.mean(ys[:,i])
-        ys[:,i] /= np.std(ys[:,i])
+#        ys[:,i] /= np.std(ys[:,i])
     return xs, ys
 
 
@@ -47,7 +49,7 @@ def load_runs(filename):
 
     return runs
 
-def get_neurons(model, remove_zeros = True):
+def get_neurons(model):
     weights = []
     layers = model.get_weights()
     for i, l in enumerate(layers):
@@ -63,16 +65,50 @@ def get_neurons(model, remove_zeros = True):
                         weights.append(w)
     return weights
                     
-def weight_hist(model, remove_zeros = True):
-    ws = get_neurons(model, remove_zeros)
-    plt.figure()
-    plt.hist(ws, bins=100)
+def ksdensity(values):
+
     plt.show()
 
+def weight_hist(model):
+    ws = np.array(get_neurons(model))
+    fig = plt.figure()
+    bins = plt.hist(ws, bins=100, normed=True)[1]
+#    values = np.array(ws).reshape(-1,1) #TODO: make this prettier
+    mu = ws.mean()
+    sigma = ws.std()
+    plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+             np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
+             linewidth=2, color='r')
+#    Vecpoints=np.linspace(values.min(),values.max(),100)[:,None]
+#    kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(values)
+#    logkde = kde.score_samples(bins)
+#    plt.plot(bins,np.exp(logkde), linewidth=2, color='g')
+    plt.show()
+    
+    return fig
+
+def histfit(ax, values, title=""):
+    lorentz = lambda p0, p1, p2,x: (1/(1+(x/p0 - 1)**4*p1**2))*p2
+    gaussian = lambda mu, sigma, xs: (1/(sigma * np.sqrt(2 * np.pi)) *
+                 np.exp( - (xs - mu)**2 / (2 * sigma**2) ))
+
+    bins = ax.hist(values, bins=100, normed=True)[1]
+    mu = values.mean()
+    sigma = values.std()
+    ax.plot(bins, gaussian(mu, sigma, bins),
+             linewidth=2, color='r')
+    # TODO: fit a lorentzian
+#    p = 0.1, 0.2, 0.3
+#    axs[i].plot(bins, lorentz(p[0], p[1], p[2], bins),
+#             linewidth=2, color='g')
+    
+    ax.set_title(title)
+    
 def evaluate_model(model, xs_val, ys_val):
     num_targets = model.output_shape[1]
     ys_pred = model.predict(xs_val)
     results = np.zeros((num_targets, 4))
+    rs = np.zeros(ys_val.shape)
     for t in range(num_targets):            
         ys_val_t = ys_val[:,t]
         ys_pred_t = ys_pred[:,t]
@@ -87,7 +123,8 @@ def evaluate_model(model, xs_val, ys_val):
         results[t, 1] = rmse
         results[t, 2] = mae
         results[t, 3] = pearson
-    return results, residuals
+        rs[:,t:t+1] = residuals.reshape((9724,1))
+    return results, rs, ys_pred
 
 def print_results(results, rowname):
     header = '\tME \t\tRMSE \t\tMAE \t\tPearson'

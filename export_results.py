@@ -3,9 +3,15 @@
 #import os
 #from jinja2 import Template
 
-#runs = (4,16,27,36,51,63,75,87,99) # runs to be exported
-runs = (10,22,35,46,57,70,82,94,99) # runs to be exported
-resultsfolder = 'results/results1'
+#runs = (4,16,27,36,51,63,75,87,99) 
+#runs = (10,22,35,46,57,70,82,94,99) 
+
+runlist = (4, 15, 24, 36, 51, 62, 77, 84, 96)
+#runlist = (9, 22, 34, 43, 55, 71, 81, 93, 96)
+
+# TODO: make this script eport also the times table
+
+resultsfolder = 'results/results1_repeat'
 results_filename = resultsfolder + '/results.csv'
 delimiter = ','
 colignore = 11
@@ -17,12 +23,12 @@ results = []
 lines = f.readlines()[1:]
 for l in lines:
     values = l.strip('\n').split(delimiter)
-    if int(values[0]) in runs:
-        errors = values[2:-2]
-        results.append(errors)
+    if int(values[0]) in runlist:
+        res = values[2:]
+        results.append(res)
          
 t = open('latex/templates/tabletemp.tex')
-dest = open('latex/' + '/result_summary_denorm_allfeatures.tex', 'w')
+dest = open('latex/' + '/result_1repeat.tex', 'w')
 
 i = 0
 for l in t.readlines():
